@@ -123,6 +123,10 @@ h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;font-weight:7
 .glass .lvl{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--bleu);opacity:.85}
 .glass.on{border-color:var(--bleu)}
 .glass.on .lvl{height:82%}
+.water.bonus{padding-top:2px;padding-bottom:0}
+.water.bonus .glass{height:34px;border-style:dashed}
+.water.bonus .glass.on{border-style:solid;border-color:var(--vert)}
+.water.bonus .glass .lvl{background:var(--vert)}
 .wlab{padding:0 14px 12px;font-size:12.5px;color:var(--ink2)}
 
 .hunger{display:block;width:100%;margin:0 0 12px;padding:13px;border-radius:14px;border:1.5px dashed var(--violet);
@@ -273,7 +277,6 @@ input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);backgro
 </head>
 <body>
 <div class="wrap">
-  <div id="startAsk" style="padding-top:16px"></div>
 
   <header class="top">
     <div class="kicker"><span id="kicker">Programme C9</span><span class="sync" id="sync"></span></div>
@@ -303,11 +306,13 @@ input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);backgro
   </header>
 
   <section id="v-jour">
+    <div id="startAsk" style="padding-top:4px"></div>
     <div class="seg" id="phaseSeg" style="margin:2px 0 12px"></div>
     <div class="next hide" id="next"></div>
     <div class="days" id="days"></div>
     <div class="msg" id="msg"></div>
     <div id="aloeAsk"></div>
+    <div id="objLine"></div>
     <div id="jourBody"></div>
     <div id="trBody" class="hide"></div>
     <div id="enBody" class="hide"></div>
@@ -328,7 +333,7 @@ input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);backgro
     <div class="card" id="menuList"></div>
     <div class="secttl">À cuisiner en avance</div>
     <div class="card"><div class="lists" style="font-size:13.5px;color:var(--ink2)">
-      <p style="margin:0 0 8px">Soir du J2 : rien à cuisiner, mais sors le poulet du congélateur.</p>
+      <p style="margin:0 0 8px">Soir du J2 : rien à cuisiner. Sors juste ce qui doit décongeler pour le repas de demain.</p>
       <p style="margin:0 0 8px">J7 : lentilles + saumon le midi pour le soir, et double la portion de riz sauvage.</p>
       <p style="margin:0">Soir du J8 : monte le burrito bowl pour l'emporter le lendemain, il se mange froid.</p>
     </div></div>
@@ -349,13 +354,15 @@ input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);backgro
   </section>
 
   <section id="v-reperes" class="hide">
+    <div class="secttl">Ton objectif</div>
+    <div class="card"><div style="padding:12px 14px">
+      <textarea id="objectif" placeholder="Ce que tu veux obtenir de ces 9 jours, et pourquoi."></textarea>
+    </div></div>
+    <div class="secttl">Badges</div>
+    <div class="card"><div class="badges" id="badgesR"></div></div>
     <button class="hunger" id="coachBtn" style="margin-top:16px">Envoyer mon bilan à mon coach</button>
     <div class="secttl">Mes programmes C9</div>
     <div class="card" id="histR"></div>
-    <div class="secttl">Ta transition</div>
-    <div class="card"><div style="padding:4px 14px 6px" id="trR"></div></div>
-    <div class="secttl">Badges</div>
-    <div class="card"><div class="badges" id="badgesR"></div></div>
     <div class="secttl">Ta pulpe d'Aloe</div>
     <div class="card"><div style="padding:12px 14px"><div class="seg" id="aloeR"></div><div class="sub" id="aloeRnote" style="margin-top:8px"></div></div></div>
     <div class="secttl">Tes 200 kcal en plus (J3 à J9)</div>
@@ -372,12 +379,12 @@ input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);backgro
       <div id="mesures"></div>
       <div style="padding:2px 14px 14px"><input type="text" id="mesnote" placeholder="Repères utilisés : hauteur de mesure des cuisses, marque au miroir…"></div>
     </div>
-    <div class="secttl">Ton objectif</div>
-    <div class="card"><div style="padding:12px 14px">
-      <textarea id="objectif" placeholder="Ce que tu veux obtenir de ces 9 jours, et pourquoi."></textarea>
-    </div></div>
     <div class="secttl">À laisser de côté pendant 9 jours</div>
     <div class="card"><div class="lists"><div class="chips no" id="interdits"></div></div></div>
+    <div id="trBlock">
+    <div class="secttl">Ta transition</div>
+    <div class="card"><div style="padding:4px 14px 6px" id="trR"></div></div>
+    </div>
     <div class="secttl">Mes données</div>
     <div class="card"><div style="padding:12px 14px">
       <div class="sub" style="margin:0 0 10px">Tout est enregistré uniquement sur cet appareil, rien ne part sur Internet. Fais une sauvegarde de temps en temps : elle sert aussi à passer d'un appareil à l'autre.</div>
@@ -549,9 +556,8 @@ var COURSES=[
   {id:"c-graines",n:"Graines de sésame, pignons de pin",q:"1 petit sachet de chaque"},
   {id:"c-epices",n:"Épices",q:"curry, cumin, cannelle, gingembre et ail en poudre, poivre"},
   {id:"c-raisins",n:"Raisins secs",q:"facultatif"}]},
- {t:"À arbitrer",items:[
-  {id:"c-fromage",n:"Fromage frais allégé",q:"60 g",d:"Pour les deux one pot pasta."}],
-  note:"La recette officielle l'utilise, mais le livret exclut aussi les produits laitiers pendant le C9. Les deux se contredisent : tu peux t'en passer, les pâtes restent crémeuses avec le bouillon réduit."},
+ {t:"Frais",items:[
+  {id:"c-fromage",n:"Fromage frais allégé",q:"60 g",d:"Pour les deux one pot pasta."}]},
  {t:"Shakes",items:[
   {id:"c-lait",n:"Boisson végétale sans sucre",q:"≈ 3,5 L",d:"15 shakes de 240 ml, à moins de les faire à l'eau."}]},
  {t:"En-cas sur 9 jours",items:[
@@ -608,7 +614,7 @@ function renderAloe(){
   var sa=document.getElementById("startAsk"); sa.innerHTML=""; var ask=sa;
   if(!state.start){
     var t0=new Date(); var iso=t0.getFullYear()+"-"+String(t0.getMonth()+1).padStart(2,"0")+"-"+String(t0.getDate()).padStart(2,"0");
-    var sc=el('<div class="card startc"><div style="padding:14px"><div class="lbl">Quand commences-tu ton C9 ?</div><div class="sub">Le jour 1 est le premier jour de reset. Les dates, le bandeau et les menus se calent dessus.</div><input type="date" value="'+iso+'"><button class="go">C\'est mon jour 1</button></div></div>');
+    var sc=el('<div class="card startc"><div style="padding:14px"><div class="lbl">Quand commences-tu ton C9 ?</div><div class="sub">Le jour 1 est le premier jour de reset. Les dates, le bandeau et les menus se calent dessus.</div><div class="sub" style="margin-top:8px">Ensuite, tu choisiras tes produits : ta liste de courses Forever s\'ajustera automatiquement.</div><input type="date" value="'+iso+'"><button class="go">C\'est mon jour 1</button></div></div>');
     sc.querySelector(".go").addEventListener("click",function(){ var v=sc.querySelector("input").value; if(!v) return; state.start=v; norm(); save(); render(); });
     sa.appendChild(sc);
   }
@@ -633,7 +639,27 @@ function renderAloe(){
       '<div class="seg" style="margin-top:10px"></div></div></div>');
     fillExt(c3.querySelector(".seg")); ask.appendChild(c3);
   }
+  if(state.start&&aloe()&&fiber()&&extra()&&!state.listOk&&cur<=9){
+    var c4=el('<div class="card"><div style="padding:14px"><div class="lbl">Ta liste Forever est prête</div>'+
+      '<div class="sub">'+foreverLine()+'</div>'+
+      '<div class="acts" style="margin-top:10px"><button class="go" style="margin-top:0" data-go="courses">Voir ma liste</button>'+
+      '<button class="go" data-ok="1" style="margin-top:0;background:transparent;color:var(--violet);border:1.5px solid var(--violet)">J\'ai déjà tout</button></div></div></div>');
+    c4.querySelector('[data-go="courses"]').addEventListener("click",function(){ state.listOk=true; save(); goTab("courses"); });
+    c4.querySelector('[data-ok="1"]').addEventListener("click",function(){ FOREVER.forEach(function(it){ state.k[it.id]=true; }); state.listOk=true; foreverOpen=false; save(); render(); });
+    ask.appendChild(c4);
+  }
+  if(state.start&&!(state.obj||"").trim()&&!state.objSkip&&cur<=9&&aloe()&&fiber()&&extra()){
+    var c5=el('<div class="card"><div style="padding:14px"><div class="lbl">Pourquoi tu fais ce C9 ?</div><div class="sub">Se fixer un objectif est le premier pilier du programme. Une phrase suffit : c\'est elle que tu reliras au jour 2.</div>'+
+      '<textarea style="margin-top:8px" placeholder="Perdre quelques kilos, avoir plus d\'énergie, reprendre la main sur mon alimentation…"></textarea>'+
+      '<div class="acts" style="margin-top:8px"><button class="go" style="margin-top:0" data-sv="1">Enregistrer</button>'+
+      '<button class="go" data-skip="1" style="margin-top:0;background:transparent;color:var(--violet);border:1.5px solid var(--violet)">Plus tard</button></div></div></div>');
+    c5.querySelector('[data-sv="1"]').addEventListener("click",function(){ var v=c5.querySelector("textarea").value.trim(); if(!v) return; state.obj=v; save(); render(); });
+    c5.querySelector('[data-skip="1"]').addEventListener("click",function(){ state.objSkip=true; save(); render(); });
+    ask.appendChild(c5);
+  }
 }
+function foreverLine(){ var a=aloe(), f=fiber(), x=extra();
+  return "2 × 1 L de Forever "+a.n+" · 36 capsules de Lean · 18 comprimés de Therm · 9 "+(state.fiber==="fusion"?"doses":"sachets")+" de "+f.n+" · "+(x==="shake"?"22":"15")+" doses de Lite Ultra"+(x==="shake"?" (un second sachet)":"")+"."; }
 var FIBERS={poudre:{n:"Forever Fiber",t:"1 sachet de <b>Forever Fiber</b> dans 200 ml d'eau",q:"9 sachets"},
   fusion:{n:"Forever Fiber Fusion",t:"1 dose de <b>Forever Fiber Fusion</b>",q:"9 doses"}};
 function fiber(){ return FIBERS[state.fiber]||null; }
@@ -692,7 +718,7 @@ function rangeTxt(){ var a=dateOf(1), b=dateOf(9);
 function defNext(){ var d=dateOf(10); d.setMonth(d.getMonth()+6); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function dayState(n){ var s=state.d[n]; if(!s){ s=state.d[n]={}; }
   if(!s.c) s.c={}; if(typeof s.w!=="number") s.w=0; if(typeof s.n!=="string") s.n="";
-  if(!s.r) s.r={}; if(typeof s.fr!=="number") s.fr=0; if(typeof s.lg!=="number") s.lg=0; return s; }
+  if(!s.r) s.r={}; if(typeof s.wb!=="number") s.wb=0; if(typeof s.fr!=="number") s.fr=0; if(typeof s.lg!=="number") s.lg=0; return s; }
 function cnt(n,keys){ var s=dayState(n),c=0; keys.forEach(function(k){ if(s.c[k]) c++; }); return c; }
 function mealsDone(n){ return cnt(n, n>=11?tKeys(n):plan(n).map(function(b){ return b.k; })); }
 function movesDone(n){ return cnt(n,movesKeys(n)); }
@@ -784,8 +810,10 @@ function toggle(n,key,force){
   save(); afterChange(n,before);
 }
 function setWater(n,v){
-  var before=earned(); dayState(n).w=Math.max(0,Math.min(8,v)); save();
-  if(n===cur) paintWater(); afterChange(n,before);
+  var before=earned(), s=dayState(n), was=s.w>=8;
+  s.w=Math.max(0,Math.min(8,v)); save();
+  if(n===cur){ paintWater(); if(was!==(s.w>=8)) renderJour(); }
+  afterChange(n,before);
 }
 function showOv(check,title,text,badges){
   var c=document.getElementById("ovc");
@@ -872,9 +900,10 @@ function syncBoxes(){ var s=dayState(cur);
 function boxBtn(key,label){ var b=el('<button class="box" role="checkbox" data-key="'+key+'" aria-checked="'+(!!dayState(cur).c[key])+'" aria-label="'+esc(label)+'">'+CHECK+'</button>');
   b.addEventListener("click",function(){ toggle(cur,key); }); return b; }
 function paintWater(){ var s=dayState(cur);
-  document.querySelectorAll("#jourBody .glass, #trBody .glass").forEach(function(g,i){ g.classList.toggle("on",s.w>=i+1); });
+  document.querySelectorAll("#jourBody .water:not(.bonus) .glass, #trBody .water:not(.bonus) .glass").forEach(function(g,i){ g.classList.toggle("on",s.w>=i+1); });
+  document.querySelectorAll("#jourBody .bonus .glass, #trBody .bonus .glass").forEach(function(g,i){ g.classList.toggle("on",s.wb>=i+1); });
   var l=document.getElementById("wlab");
-  if(l) l.textContent= s.w>=8 ? "8 verres sur 8 : hydratation bouclée." : s.w+" verre"+(s.w>1?"s":"")+" sur 8 · encore "+(8-s.w); }
+  if(l) l.textContent= s.w>=8 ? ("8 verres sur 8 : hydratation bouclée."+(s.wb?" Bonus : +"+s.wb+" verre"+(s.wb>1?"s":"")+".":" Les verres en pointillé comptent les bonus.")) : s.w+" verre"+(s.w>1?"s":"")+" sur 8 · encore "+(8-s.w); }
 function renderFeel(){
   var host=document.getElementById("feel"); host.innerHTML=""; var s=dayState(cur);
   FEEL.forEach(function(f){
@@ -897,6 +926,7 @@ function renderJourC9(){
   if(d10){ renderJ10(); return; }
 
   var host=document.getElementById("jourBody"); host.innerHTML="";
+  if(cur===1){ host.appendChild(el('<div class="secttl">Avant de commencer</div>')); host.appendChild(mesJ1Card()); }
   var t=el('<div class="secttl">Bouger</div>'); host.appendChild(t);
   var c1=el('<div class="card"></div>');
   MOUV.forEach(function(m,i){
@@ -907,14 +937,7 @@ function renderJourC9(){
   host.appendChild(c1);
 
   host.appendChild(el('<div class="secttl">Hydratation</div>'));
-  var c0=el('<div class="card"><div class="water"></div><div class="wlab" id="wlab"></div></div>');
-  var w=c0.querySelector(".water");
-  for(var k=1;k<=8;k++){ (function(k){
-    var g=el('<button class="glass" aria-label="'+k+' verres"><span class="lvl"></span></button>');
-    g.addEventListener("click",function(){ var st=dayState(cur); setWater(cur, st.w===k?k-1:k); });
-    w.appendChild(g);
-  })(k); }
-  host.appendChild(c0);
+  host.appendChild(waterCard());
 
   host.appendChild(el('<div class="secttl">'+(cur<=2?"Journée de reset — aucun repas solide":"Prises et repas")+'</div>'));
   if(cur>=3&&cur<=8){
@@ -933,6 +956,11 @@ function renderJourC9(){
   });
   host.appendChild(c2);
   if(NOTES_MENU[cur]&&!(cur===6&&state.swap[6])) host.appendChild(el('<div class="warn" style="border:1px solid var(--line);border-radius:14px;margin-bottom:12px">'+NOTES_MENU[cur]+'</div>'));
+  if(cur===2){
+    var c9c=el('<div class="card"><div class="row"><div class="txt"><div class="lbl">Demain, les vrais repas commencent</div><div class="sub">Vérifie la partie 2 de ta liste de courses : ce sont les ingrédients des repas du J3 au J9.</div></div><button class="pill">Voir</button></div></div>');
+    c9c.querySelector(".pill").addEventListener("click",function(){ goTab("courses"); });
+    host.appendChild(c9c);
+  }
   var hb=el('<button class="hunger">J\'ai faim</button>'); hb.addEventListener("click",openHunger); host.appendChild(hb);
 
   paintWater(); renderFeel();
@@ -1034,7 +1062,7 @@ function bilanTextC9(o){
   L.push("Jours bouclés : "+done+"/9 · série en cours : "+streak());
   L.push(""); L.push("Détail par jour");
   for(var n2=1;n2<=Math.min(td,9);n2++){ var s=dayState(n2), r=s.r, parts=[];
-    parts.push("prises "+mealsDone(n2)+"/"+totalMeals(n2)); parts.push("eau "+s.w+"/8"); parts.push("bouger "+movesDone(n2)+"/3");
+    parts.push("prises "+mealsDone(n2)+"/"+totalMeals(n2)); parts.push("eau "+s.w+"/8"+(s.wb?" +"+s.wb:"")); parts.push("bouger "+movesDone(n2)+"/3");
     if(typeof r.e==="number") parts.push("énergie "+r.e+"/5"); if(typeof r.f==="number") parts.push("faim "+r.f+"/5"); if(typeof r.s==="number") parts.push("sommeil "+r.s+"/5");
     L.push("J"+n2+" ("+shortDate(dateOf(n2))+") : "+parts.join(", ")+(isDone(n2)?" ✓":"")); }
   if(o.mes){ L.push(""); L.push("Mesures J1 → J10");
@@ -1148,6 +1176,17 @@ function itemRow(it){
 }
 function renderCourses(){
   var f=document.getElementById("forever"); f.innerHTML="";
+  if(!aloe()||!fiber()||!extra()){
+    var bn=el('<div class="row"><div class="txt"><div class="lbl">Choisis d\'abord tes produits</div><div class="sub">Ta pulpe d\'Aloe, ton Fiber et ton option 200 kcal changent les noms et les quantités de cette liste.</div></div><button class="pill">Choisir</button></div>');
+    bn.querySelector(".pill").addEventListener("click",function(){ goTab("jour"); });
+    f.appendChild(bn);
+  }
+  if(!foreverOpen&&FOREVER.every(function(it){ return !!state.k[it.id]; })){
+    var cr=el('<div class="row"><button class="box" role="checkbox" aria-checked="true" aria-label="Produits Forever" disabled>'+CHECK+'</button>'+
+      '<div class="txt"><div class="lbl">Produits Forever<span class="qty">'+FOREVER.length+'/'+FOREVER.length+'</span></div><div class="sub">Tout est coché, tu as de quoi tenir les 9 jours.</div></div><button class="pill">Afficher</button></div>');
+    cr.querySelector(".pill").addEventListener("click",function(){ foreverOpen=true; renderCourses(); });
+    f.appendChild(cr); return;
+  }
   FOREVER.forEach(function(it){ var x=it;
     if(it.id==="f-aloe"&&aloe()) x={id:it.id,n:"Forever "+aloe().n,q:it.q,d:it.d};
     if(it.id==="f-fiber"&&fiber()) x={id:it.id,n:fiber().n,q:fiber().q,d:it.d};
@@ -1158,6 +1197,13 @@ function renderCourses(){
   COURSES.forEach(function(g){
     host.appendChild(el('<div class="grp">'+g.t+'</div>'));
     var c=el('<div class="card"></div>'); var drop=false;
+    var vis=g.items.filter(function(it){ return !(it.id==="c-fruits"&&restricted()); });
+    if(vis.length&&!groupOpen[g.t]&&vis.every(function(it){ return !!state.k[it.id]; })){
+      var cr=el('<div class="row"><button class="box" role="checkbox" aria-checked="true" aria-label="'+esc(g.t)+'" disabled>'+CHECK+'</button>'+
+        '<div class="txt"><div class="lbl">Tout est coché<span class="qty">'+vis.length+'/'+vis.length+'</span></div></div><button class="pill">Afficher</button></div>');
+      cr.querySelector(".pill").addEventListener("click",function(){ groupOpen[g.t]=true; renderCourses(); });
+      c.appendChild(cr); host.appendChild(c); return;
+    }
     g.items.forEach(function(it){ if(it.id==="c-fruits"&&restricted()){ drop=true; return; } var y=it;
       if(it.id==="c-lait"&&extra()==="shake") y={id:it.id,n:it.n,q:"≈ 5,3 L",d:"22 shakes de 240 ml, à moins de les faire à l'eau."};
       if(extra()==="plat"&&EXTRA_Q[it.id]) y={id:it.id,n:it.n,q:it.q+" "+EXTRA_Q[it.id],d:(it.d?it.d+" ":"")+"Le complément couvre tes +200 kcal."};
@@ -1320,6 +1366,7 @@ function paintNext(){
 
 /* ---------- vue jour : aiguillage ---------- */
 function renderJour(){
+  paintObj();
   var ph=phaseOf(cur), tr=document.getElementById("trBody"), en=document.getElementById("enBody"), jb=document.getElementById("jourBody");
   if(ph==="c9"||ph==="bilan"){
     tr.classList.add("hide"); en.classList.add("hide"); tr.innerHTML=""; en.innerHTML="";
@@ -1338,19 +1385,61 @@ function keepToggles(host,live){
     l.querySelector("input").addEventListener("change",function(){ state.tr.keep[h]=this.checked; if(live){ save(); renderJour(); paintHeader(); paintDays(); } });
     host.appendChild(l); });
 }
+var foreverOpen=false, mesOpen=false, groupOpen={};
+function goTab(v){ var b=document.querySelector('nav button[data-v="'+v+'"]'); if(b) b.click(); }
 function waterCard(){
+  var s=dayState(cur);
   var c0=el('<div class="card"><div class="water"></div><div class="wlab" id="wlab"></div></div>'), w=c0.querySelector(".water");
   for(var k=1;k<=8;k++){ (function(k){
     var g=el('<button class="glass" aria-label="'+k+' verres"><span class="lvl"></span></button>');
     g.addEventListener("click",function(){ var st=dayState(cur); setWater(cur, st.w===k?k-1:k); });
     w.appendChild(g); })(k); }
+  if(s.w>=8){
+    var b=el('<div class="water bonus"></div>');
+    for(var j=1;j<=8;j++){ (function(j){
+      var g=el('<button class="glass" aria-label="'+j+' verres bonus"><span class="lvl"></span></button>');
+      g.addEventListener("click",function(){ var st=dayState(cur); setBonus(cur, st.wb===j?j-1:j); });
+      b.appendChild(g); })(j); }
+    c0.insertBefore(b,c0.querySelector(".wlab"));
+  }
   return c0;
+}
+function setBonus(n,v){ dayState(n).wb=Math.max(0,Math.min(8,v)); save(); paintWater(); }
+function mesJ1Card(){
+  var miss=MESURES.filter(function(x){ return num(state.mes[x.k+"_1"])===null; });
+  if(!miss.length&&!mesOpen){
+    var c=el('<div class="card"><div class="row"><div class="txt"><div class="lbl">Mesures du jour 1 enregistrées ✓</div><div class="sub">'+
+      MESURES.map(function(x){ return x.l.replace(/ \(.*\)/,"")+" "+fmt(num(state.mes[x.k+"_1"]))+(x.k==="poids"?" kg":" cm"); }).join(" · ")+'</div></div><button class="pill">Modifier</button></div></div>');
+    c.querySelector(".pill").addEventListener("click",function(){ mesOpen=true; renderJour(); });
+    return c;
+  }
+  var c=el('<div class="card"><div style="padding:14px 14px 4px"><div class="lbl">Tes mesures de départ</div><div class="sub">Au réveil, à jeun, avant le petit-déjeuner. Tu les compareras au jour 10. Le protocole de mesure est détaillé dans Repères.</div></div></div>');
+  MESURES.forEach(function(x){
+    var r=el('<div class="row" style="align-items:center"><div class="txt"><div class="lbl">'+x.l+'</div><div class="sub">'+x.h+'</div></div><input type="number" inputmode="decimal" step="0.1" style="width:84px" placeholder="—"></div>');
+    var inp=r.querySelector("input"); inp.value=state.mes[x.k+"_1"]||"";
+    inp.addEventListener("input",function(){ state.mes[x.k+"_1"]=this.value; save(); });
+    inp.addEventListener("blur",function(){ if(MESURES.every(function(y){ return num(state.mes[y.k+"_1"])!==null; })){ mesOpen=false; renderJour(); } });
+    c.appendChild(r); });
+  return c;
 }
 function segRow(label,opts,val,onPick){
   var r=el('<div style="padding:10px 14px;border-top:1px solid var(--line)"><div class="sub" style="margin:0 0 6px">'+label+'</div><div class="seg"></div></div>'), sg=r.querySelector(".seg");
   Object.keys(opts).forEach(function(k){ var b=el('<button aria-pressed="'+(val===k)+'">'+opts[k]+'</button>');
     b.addEventListener("click",function(){ onPick(k); }); sg.appendChild(b); });
   return r;
+}
+function paintObj(){
+  var host=document.getElementById("objLine"); if(!host) return; host.innerHTML="";
+  var ph=phaseOf(cur); if(ph==="en"||!state.start) return;
+  var o=(state.obj||"").trim();
+  var c=el('<div class="card" style="margin-bottom:12px"><div class="row"><div class="txt"><div class="lbl">🎯 '+(o?"Ton objectif":"Pas encore d\'objectif")+'</div><div class="sub" style="white-space:pre-line">'+(o?esc(o):"Écris pourquoi tu fais ce C9 : c'est ce qui tient au jour 2.")+'</div></div><button class="pill">'+(o?"Modifier":"Écrire")+'</button></div></div>');
+  c.querySelector(".pill").addEventListener("click",function(){
+    var e=el('<div class="card" style="margin-bottom:12px"><div style="padding:12px 14px"><div class="lbl">🎯 Ton objectif</div><textarea placeholder="Ce que tu veux obtenir de ces 9 jours, et pourquoi."></textarea><button class="go" style="width:100%">Enregistrer</button></div></div>');
+    var ta=e.querySelector("textarea"); ta.value=state.obj||"";
+    e.querySelector(".go").addEventListener("click",function(){ state.obj=ta.value; save(); paintObj(); renderReperes(); });
+    host.innerHTML=""; host.appendChild(e); ta.focus();
+  });
+  host.appendChild(c);
 }
 function renderTransition(){
   var host=document.getElementById("trBody"); host.innerHTML=""; var n=cur, s=dayState(n), f=famOf(n);
@@ -1392,6 +1481,11 @@ function renderTransition(){
   rb.insertBefore(boxBtn("bouger","Bouger"),rb.firstChild); c3.appendChild(rb); host.appendChild(c3);
   host.appendChild(waterCard());
   var sb=el('<button class="hunger">J\'ai une envie</button>'); sb.addEventListener("click",openSnack); host.appendChild(sb);
+  if(state.tr.cfg){
+    var rg=el('<div class="card" style="margin-top:12px"><div class="row"><div class="txt"><div class="lbl">Réglages de la transition</div><div class="sub">Habitudes gardées et heure de fringale.</div></div><button class="pill">Modifier</button></div></div>');
+    rg.querySelector(".pill").addEventListener("click",function(){ goTab("reperes"); });
+    host.appendChild(rg);
+  }
   var todays=snackEntries().filter(function(e){ return isoD(new Date(e.t))===isoD(dateOf(n)); });
   if(todays.length) host.appendChild(el('<div class="card">'+todays.map(snackRow).join("")+'</div>'));
   paintWater(); renderFeel(); document.getElementById("note").value=dayState(n).n||"";
@@ -1531,6 +1625,7 @@ function addBilanExtras(){
 function renderReperes(){
   renderReperesC9();
   var h=document.getElementById("histR"); if(h) h.innerHTML=histHTML();
+  var tb=document.getElementById("trBlock"); if(tb) tb.classList.toggle("hide", !(programDay()>=9||state.tr.cfg));
   var t=document.getElementById("trR"); if(t){ t.innerHTML=""; keepToggles(t,true);
     var ci=el('<label class="tog">Heure de fringale<input type="time" style="width:auto" value="'+(state.tr.craving||"")+'"></label>');
     ci.querySelector("input").addEventListener("change",function(){ state.tr.craving=this.value||""; state.tr.cfg=true; save(); paintNext(); });
@@ -1592,6 +1687,7 @@ document.querySelectorAll("nav button").forEach(function(b){
     document.querySelectorAll("nav button").forEach(function(x){ x.setAttribute("aria-selected",String(x===b)); });
     ["jour","menus","courses","encas","reperes"].forEach(function(v){ document.getElementById("v-"+v).classList.toggle("hide",v!==view); });
     if(view==="jour"){ renderJour(); paintNext(); }
+    if(view==="courses") renderCourses();
     if(view==="reperes") renderReperes();
     window.scrollTo(0,0);
   });
