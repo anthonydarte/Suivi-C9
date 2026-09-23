@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suivi C9</title>
+<meta name="description" content="Suivi du programme C9, de la transition et de l'entretien.">
+<meta name="theme-color" content="#5B2A86" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14101B" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Suivi C9">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F4FA; --surface:#FFFFFF; --ink:#1B1626; --ink2:#5C5170;
+  --line:#E4DDEC; --violet:#5B2A86; --violet-soft:#EFE6F8;
+  --vert:#2F7A50; --ocre:#9C5316; --bleu:#2F6FA8;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14101B; --surface:#1E1828; --ink:#EFE9F5; --ink2:#A79CB8;
+    --line:#312843; --violet:#BE95EA; --violet-soft:#2C2040;
+    --vert:#79C295; --ocre:#DFA46C; --bleu:#7FB2E0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14101B; --surface:#1E1828; --ink:#EFE9F5; --ink2:#A79CB8;
+  --line:#312843; --violet:#BE95EA; --violet-soft:#2C2040;
+  --vert:#79C295; --ocre:#DFA46C; --bleu:#7FB2E0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;font-weight:700}
+.hide{display:none!important}
+
+/* en-tête */
+.top{padding:20px 0 4px}
+.kicker{font-size:12.5px;color:var(--ink2)}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}
+.hl{display:flex;align-items:flex-end;gap:14px}
+.daynum{font-family:var(--display);font-weight:800;font-size:68px;line-height:.82;letter-spacing:-.045em;color:var(--violet)}
+.herometa{padding-bottom:6px}
+.herometa .d{font-family:var(--display);font-size:19px;font-weight:700}
+.herometa .s{font-size:13px;color:var(--ink2)}
+#rings{flex:0 0 auto}
+.rt{fill:none;stroke:var(--line);stroke-width:9}
+.rv{fill:none;stroke-width:9;stroke-linecap:round}
+.r1{stroke:var(--violet)} .r2{stroke:var(--bleu)} .r3{stroke:var(--vert)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2);margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.legend b{color:var(--ink);font-weight:600;margin-left:3px}
+.d1{background:var(--violet)} .d2{background:var(--bleu)} .d3{background:var(--vert)}
+.rail{display:flex;gap:3px;margin:14px 0 4px;align-items:center}
+.rail i{flex:1;height:5px;border-radius:2px;background:var(--line)}
+.rail i.m{height:9px}
+.rail i.on{background:var(--violet)}
+.rail i.now{background:var(--ink)}
+.miles{display:grid;grid-template-columns:repeat(9,1fr);font-size:10px;color:var(--ink2);margin-bottom:12px}
+.miles span{justify-self:center;white-space:nowrap}
+
+/* prochaine prise */
+.next{background:var(--violet);color:#fff;border-radius:16px;padding:14px 15px 15px;margin:6px 0 12px;position:relative}
+.next .nk{font-size:12px;opacity:.85;font-weight:600}
+.next .nl{font-family:var(--display);font-size:21px;font-weight:700;margin-top:2px}
+.next .ns{font-size:13px;opacity:.9;margin-top:3px;padding-right:4px}
+.next .nb{margin-top:11px;background:#fff;color:#3A1A58;border:0;border-radius:10px;padding:9px 16px;
+  font-family:var(--body);font-weight:600;font-size:14px;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .next{background:#4A2470}}
+:root[data-theme="dark"] .next{background:#4A2470}
+
+.msg{border-left:3px solid var(--violet);padding:4px 0 4px 12px;margin:4px 0 12px;font-size:14px;color:var(--ink)}
+
+/* jours */
+.days{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;min-width:44px;padding:7px 4px;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink2);border-radius:11px;font-family:var(--display);font-weight:700;font-size:15px;cursor:pointer}
+.day .dd{display:block;font-family:var(--body);font-weight:500;font-size:10px;color:var(--ink2)}
+.day[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+.day[aria-pressed="true"] .dd{color:#fff;opacity:.8}
+.day.done{border-color:var(--vert);color:var(--vert)}
+.day.done[aria-pressed="true"]{color:#fff}
+.day.j10{border-style:dashed}
+
+/* blocs */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.row{display:flex;gap:12px;padding:13px 14px;border-top:1px solid var(--line);align-items:flex-start}
+.row:first-child{border-top:0}
+.row .txt{flex:1;min-width:0}
+.lbl{font-weight:600;font-size:14.5px}
+.sub{font-size:13px;color:var(--ink2);margin-top:3px}
+.sub b{color:var(--ink);font-weight:600}
+.hh{font-family:var(--display);font-size:12px;font-weight:700;color:var(--violet);width:38px;flex:0 0 38px;padding-top:2px}
+.box{flex:0 0 26px;width:26px;height:26px;border:1.5px solid var(--line);border-radius:8px;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;margin-top:1px}
+.box svg{width:15px;height:15px;stroke:#fff;stroke-width:3;fill:none;opacity:0}
+.box[aria-checked="true"]{background:var(--vert);border-color:var(--vert)}
+.box[aria-checked="true"] svg{opacity:1}
+.warn{padding:10px 14px;background:var(--violet-soft);font-size:12.5px;color:var(--ink);border-top:1px solid var(--line)}
+.warn b{color:var(--ocre)}
+.secttl{font-family:var(--display);font-size:13px;font-weight:700;color:var(--ink2);margin:20px 0 8px}
+.idea{display:inline-block;margin-top:5px;font-size:12px;color:var(--vert);font-weight:600}
+
+/* eau */
+.water{display:flex;gap:7px;justify-content:space-between;padding:14px 14px 6px}
+.glass{flex:1;max-width:36px;height:44px;border:1.5px solid var(--line);border-top-width:1px;border-radius:3px 3px 10px 10px;
+  background:transparent;cursor:pointer;padding:0;position:relative;overflow:hidden}
+.glass .lvl{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--bleu);opacity:.85}
+.glass.on{border-color:var(--bleu)}
+.glass.on .lvl{height:82%}
+.wlab{padding:0 14px 12px;font-size:12.5px;color:var(--ink2)}
+
+.hunger{display:block;width:100%;margin:0 0 12px;padding:13px;border-radius:14px;border:1.5px dashed var(--violet);
+  background:transparent;color:var(--violet);font-family:var(--display);font-weight:700;font-size:16px;cursor:pointer}
+
+/* ressenti */
+.feel{padding:12px 14px 4px}
+.fr{margin-bottom:12px}
+.fh{display:flex;justify-content:space-between;font-size:13.5px}
+.fh span:first-child{font-weight:600}
+.fh span:last-child{color:var(--ink2)}
+input[type=range]{width:100%;accent-color:var(--violet);margin:6px 0 0}
+input[type=range].unset{opacity:.4}
+
+textarea,input[type=text],input[type=number],input[type=date]{width:100%;font-family:var(--body);font-size:14px;color:var(--ink);
+  background:transparent;border:1px solid var(--line);border-radius:10px;padding:9px 11px;resize:vertical}
+textarea{min-height:76px}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+/* menus, listes */
+details{border-top:1px solid var(--line)}
+details:first-of-type{border-top:0}
+summary{list-style:none;padding:13px 14px;cursor:pointer;display:flex;gap:10px;align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary .j{font-family:var(--display);font-weight:700;font-size:13px;color:var(--violet);flex:0 0 58px}
+summary .n{flex:1;font-weight:600;font-size:14.5px}
+summary .k{font-size:12px;color:var(--ink2);white-space:nowrap}
+.detail{padding:0 14px 15px 72px;font-size:13.5px;color:var(--ink2)}
+.detail ul{margin:4px 0 10px;padding-left:16px}
+.detail li{margin:2px 0}
+.detail p{margin:0 0 8px}
+.tag{display:inline-block;font-size:11px;font-weight:600;color:var(--violet);background:var(--violet-soft);padding:2px 7px;border-radius:6px;margin-bottom:6px}
+.lists{padding:14px}
+.lists h3{font-size:14px;margin-bottom:2px}
+.lists p.q{font-size:12.5px;color:var(--ink2);margin:0 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--ink2)}
+.no .chip{color:var(--ocre);border-color:color-mix(in srgb,var(--ocre) 35%,transparent)}
+.mes{display:grid;grid-template-columns:1fr 78px 78px;gap:8px;align-items:center;padding:0 14px 14px}
+.mes .h{font-size:11px;color:var(--ink2);text-align:center;font-weight:600}
+.mes .n{font-size:13.5px}
+.qty{font-weight:600;color:var(--violet);font-size:13px;margin-left:6px;white-space:nowrap}
+.row.got .lbl{text-decoration:line-through;color:var(--ink2)}
+.row.got .qty{color:var(--ink2)}
+.grp{font-size:11.5px;font-weight:600;color:var(--ink2);margin:16px 2px 6px;text-transform:uppercase;letter-spacing:.05em}
+.reset{display:block;margin:6px auto 18px;background:none;border:1px solid var(--line);border-radius:10px;color:var(--ink2);font-family:var(--body);font-size:13px;padding:8px 14px;cursor:pointer}
+
+/* badges */
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+.badge{display:flex;gap:10px;align-items:center;padding:12px;background:var(--surface);opacity:.55}
+.badge.ok{opacity:1}
+.bi{font-size:24px;line-height:1;filter:grayscale(1)}
+.badge.ok .bi{filter:none}
+.bn{font-weight:600;font-size:13px}
+.bd{font-size:11.5px;color:var(--ink2);line-height:1.35}
+
+/* J10 */
+.cmp{padding:12px 14px;border-top:1px solid var(--line)}
+.cmp:first-child{border-top:0}
+.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.cn{font-weight:600;font-size:14px}
+.cd{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink2)}
+.cd.good{color:var(--vert)}
+.cr{display:flex;align-items:center;gap:8px;margin-top:5px}
+.ct{font-size:11px;font-weight:600;color:var(--ink2);width:28px}
+.cb{flex:1;height:10px;background:var(--violet-soft);border-radius:5px;overflow:hidden}
+.cb i{display:block;height:100%;background:var(--ink2);border-radius:5px;opacity:.5}
+.cb i.b10{background:var(--violet);opacity:1}
+.cv{width:70px;text-align:right;font-size:13px}
+.ci{width:70px!important;padding:5px 7px!important;font-size:13px!important;text-align:right}
+.fgrid{display:grid;grid-template-columns:62px repeat(9,1fr);gap:4px;padding:14px;align-items:center;font-size:11px;color:var(--ink2)}
+.fgrid .c{aspect-ratio:1;border-radius:4px;border:1px solid var(--line)}
+.fgrid .hd{text-align:center;font-weight:600}
+.countdown{font-family:var(--display);font-size:32px;font-weight:800;color:var(--violet);letter-spacing:-.03em}
+
+/* surcouches */
+.ov{position:fixed;inset:0;background:rgba(20,16,27,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
+.ovc{background:var(--surface);border-radius:20px;padding:26px 22px 20px;max-width:340px;width:100%;text-align:center}
+.ovc h2{font-size:24px;margin-top:10px}
+.ovc p{color:var(--ink2);font-size:14px;margin:6px 0 14px}
+.ovc .badge{opacity:1;text-align:left;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.ovc .badge .bi{filter:none}
+.ovb{width:100%;background:var(--violet);color:#fff;border:0;border-radius:12px;padding:12px;font-family:var(--body);font-weight:600;font-size:15px;cursor:pointer;margin-top:4px}
+.bigcheck{width:74px;height:74px}
+.bigcheck circle{fill:none;stroke:var(--vert);stroke-width:3;stroke-dasharray:151;stroke-dashoffset:0}
+.bigcheck path{fill:none;stroke:var(--vert);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:0}
+.bigicon{font-size:56px;line-height:1}
+.sheetwrap{align-items:flex-end;padding:0}
+.sheetc{background:var(--surface);width:100%;max-width:560px;border-radius:20px 20px 0 0;
+  padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:88%;overflow:auto}
+.sheetc h2{font-size:22px}
+.tip{font-size:14px;color:var(--ink);background:var(--violet-soft);border-radius:12px;padding:10px 12px;margin:10px 0 6px}
+.hrow{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.hrow:first-of-type{border-top:0}
+.hrow>div{flex:1}
+.pill{flex:0 0 auto;border:1.5px solid var(--violet);color:var(--violet);background:transparent;border-radius:999px;
+  padding:7px 12px;font-family:var(--body);font-weight:600;font-size:13px;cursor:pointer}
+.pill:disabled{border-color:var(--line);color:var(--ink2);cursor:default}
+.close{width:100%;margin-top:12px;background:none;border:1px solid var(--line);border-radius:12px;padding:11px;color:var(--ink);font-family:var(--body);font-size:14px;cursor:pointer}
+
+/* navigation */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav .in{max-width:560px;margin:0 auto;display:flex}
+nav button{flex:1;background:none;border:0;padding:11px 2px 12px;color:var(--ink2);font-family:var(--body);font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button span.i{font-size:17px;line-height:1}
+nav button[aria-selected="true"]{color:var(--violet)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:92px;border:1.5px solid var(--line);background:transparent;border-radius:10px;padding:9px 6px;
+  font-family:var(--body);font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--violet);background:var(--violet-soft);color:var(--violet)}
+.excl .chip{text-decoration:line-through;opacity:.55}
+.ban{font-size:12.5px;border-radius:10px;padding:8px 10px;margin:0 0 10px;background:var(--violet-soft)}
+.ban b{color:var(--ocre)}
+.sync{font-size:11px;color:var(--ink2);margin-left:6px}
+.startc input{margin-top:10px}
+.go{margin-top:10px;background:var(--violet);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-family:var(--body);font-weight:600;font-size:14px;cursor:pointer}
+.late{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.late button{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:6px 11px;font-family:var(--body);font-size:12.5px;font-weight:600;cursor:pointer}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.tog input{width:22px;height:22px;accent-color:var(--violet)}
+#bilan{min-height:180px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;margin-top:10px}
+.acts{display:flex;gap:8px;margin-top:10px}
+.acts button{flex:1}
+.danger{display:block;width:100%;margin:18px 0 8px;padding:12px;border-radius:12px;border:1.5px solid var(--ocre);background:transparent;color:var(--ocre);font-family:var(--body);font-weight:600;font-size:14px;cursor:pointer}
+.danger.fill{background:var(--ocre);color:#fff}
+.seg button:disabled{opacity:.45}
+.go:disabled{opacity:.45;cursor:default}
+input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%}
+.updbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px 10px 14px;font-size:13.5px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.updbar button{background:var(--violet);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-family:var(--body);font-weight:600;font-size:13px;cursor:pointer}
+.foot{font-size:11.5px;color:var(--ink2);padding:6px 2px 18px;line-height:1.45}
+
+@media (prefers-reduced-motion:no-preference){
+  .box,.day,.pill{transition:background-color .12s ease,border-color .12s ease}
+  .glass .lvl{transition:height .45s cubic-bezier(.3,.7,.4,1)}
+  .rv{transition:stroke-dashoffset .6s cubic-bezier(.3,.7,.4,1)}
+  .cb i{transition:width .4s ease}
+  .ovc{animation:pop .32s cubic-bezier(.2,.9,.3,1.2)}
+  .sheetc{animation:up .28s ease-out}
+  .bigcheck circle{animation:draw1 .6s ease-out}
+  .bigcheck path{animation:draw2 .35s .45s ease-out both}
+}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes draw1{from{stroke-dashoffset:151}to{stroke-dashoffset:0}}
+@keyframes draw2{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="startAsk" style="padding-top:16px"></div>
+
+  <header class="top">
+    <div class="kicker"><span id="kicker">Programme C9</span><span class="sync" id="sync"></span></div>
+    <div class="hero">
+      <div class="hl">
+        <div class="daynum" id="daynum">1</div>
+        <div class="herometa">
+          <div class="d" id="dayDate"></div>
+          <div class="s" id="dayState"></div>
+        </div>
+      </div>
+      <svg id="rings" viewBox="0 0 100 100" width="92" height="92" aria-hidden="true">
+        <g transform="rotate(-90 50 50)">
+          <circle class="rt" cx="50" cy="50" r="42"/><circle id="rg1" class="rv r1" cx="50" cy="50" r="42"/>
+          <circle class="rt" cx="50" cy="50" r="30"/><circle id="rg2" class="rv r2" cx="50" cy="50" r="30"/>
+          <circle class="rt" cx="50" cy="50" r="18"/><circle id="rg3" class="rv r3" cx="50" cy="50" r="18"/>
+        </g>
+      </svg>
+    </div>
+    <div class="legend" id="legend">
+      <span><i class="d1"></i><em id="lgt1" style="font-style:normal">Prises</em><b id="lg1"></b></span>
+      <span><i class="d2"></i>Eau<b id="lg2"></b></span>
+      <span><i class="d3"></i>Bouger<b id="lg3"></b></span>
+    </div>
+    <div class="rail" id="rail"></div>
+    <div class="miles"><span style="grid-column:2">Reset</span><span style="grid-column:5">Mi-parcours</span><span style="grid-column:9">Arrivée</span></div>
+  </header>
+
+  <section id="v-jour">
+    <div class="seg" id="phaseSeg" style="margin:2px 0 12px"></div>
+    <div class="next hide" id="next"></div>
+    <div class="days" id="days"></div>
+    <div class="msg" id="msg"></div>
+    <div id="aloeAsk"></div>
+    <div id="jourBody"></div>
+    <div id="trBody" class="hide"></div>
+    <div id="enBody" class="hide"></div>
+    <div id="dayExtras">
+      <div class="secttl">Ressenti du soir</div>
+      <div class="card"><div class="feel" id="feel"></div></div>
+      <div class="secttl">Notes du jour</div>
+      <div class="card"><div style="padding:12px 14px">
+        <textarea id="note" placeholder="Faim, énergie, sommeil, ce que tu as mangé en plus…"></textarea>
+      </div></div>
+    </div>
+    <div id="j10Body" class="hide"></div>
+  </section>
+
+  <section id="v-menus" class="hide">
+    <div class="secttl">Proposition de menus : un plat par jour, l'autre repas en shake · inversable dans l'onglet Jour</div>
+    <div class="card"><div style="padding:12px 14px"><div class="lbl" style="margin-bottom:8px">Tes 200 kcal en plus</div><div class="seg" id="extM"></div></div></div>
+    <div class="card" id="menuList"></div>
+    <div class="secttl">À cuisiner en avance</div>
+    <div class="card"><div class="lists" style="font-size:13.5px;color:var(--ink2)">
+      <p style="margin:0 0 8px">Soir du J2 : rien à cuisiner, mais sors le poulet du congélateur.</p>
+      <p style="margin:0 0 8px">J7 : lentilles + saumon le midi pour le soir, et double la portion de riz sauvage.</p>
+      <p style="margin:0">Soir du J8 : monte le burrito bowl pour l'emporter le lendemain, il se mange froid.</p>
+    </div></div>
+  </section>
+
+  <section id="v-courses" class="hide">
+    <div class="secttl">1 · Produits Forever</div>
+    <div class="card" id="forever"></div>
+    <div class="secttl">2 · Courses pour les recettes et les en-cas</div>
+    <div id="courses"></div>
+    <button id="resetCourses" class="reset">Tout décocher</button>
+  </section>
+
+  <section id="v-encas" class="hide">
+    <div class="secttl">Ta pulpe d'Aloe</div>
+    <div class="card"><div style="padding:12px 14px"><div class="seg" id="aloeE"></div></div></div>
+    <div class="card"><div class="lists" id="encas"></div></div>
+  </section>
+
+  <section id="v-reperes" class="hide">
+    <button class="hunger" id="coachBtn" style="margin-top:16px">Envoyer mon bilan à mon coach</button>
+    <div class="secttl">Mes programmes C9</div>
+    <div class="card" id="histR"></div>
+    <div class="secttl">Ta transition</div>
+    <div class="card"><div style="padding:4px 14px 6px" id="trR"></div></div>
+    <div class="secttl">Badges</div>
+    <div class="card"><div class="badges" id="badgesR"></div></div>
+    <div class="secttl">Ta pulpe d'Aloe</div>
+    <div class="card"><div style="padding:12px 14px"><div class="seg" id="aloeR"></div><div class="sub" id="aloeRnote" style="margin-top:8px"></div></div></div>
+    <div class="secttl">Tes 200 kcal en plus (J3 à J9)</div>
+    <div class="card"><div style="padding:12px 14px"><div class="seg" id="extR"></div><div class="sub" id="extRnote" style="margin-top:8px"></div></div></div>
+    <div class="secttl">Ton Forever Fiber</div>
+    <div class="card"><div style="padding:12px 14px"><div class="seg" id="fibR"></div></div></div>
+    <div class="secttl">Ne rate pas ça</div>
+    <div class="card" id="regles"></div>
+    <div class="secttl">Comment mesurer</div>
+    <div class="card" id="proto"></div>
+    <div class="secttl">Mesures</div>
+    <div class="card">
+      <div class="mes" style="padding-top:14px"><div></div><div class="h">Jour 1</div><div class="h">Jour 10</div></div>
+      <div id="mesures"></div>
+      <div style="padding:2px 14px 14px"><input type="text" id="mesnote" placeholder="Repères utilisés : hauteur de mesure des cuisses, marque au miroir…"></div>
+    </div>
+    <div class="secttl">Ton objectif</div>
+    <div class="card"><div style="padding:12px 14px">
+      <textarea id="objectif" placeholder="Ce que tu veux obtenir de ces 9 jours, et pourquoi."></textarea>
+    </div></div>
+    <div class="secttl">À laisser de côté pendant 9 jours</div>
+    <div class="card"><div class="lists"><div class="chips no" id="interdits"></div></div></div>
+    <div class="secttl">Mes données</div>
+    <div class="card"><div style="padding:12px 14px">
+      <div class="sub" style="margin:0 0 10px">Tout est enregistré uniquement sur cet appareil, rien ne part sur Internet. Fais une sauvegarde de temps en temps : elle sert aussi à passer d'un appareil à l'autre.</div>
+      <div class="acts" style="margin-top:0"><button class="go" id="expBtn" style="margin-top:0">Sauvegarder</button><button class="go" id="impBtn" style="margin-top:0;background:transparent;color:var(--violet);border:1.5px solid var(--violet)">Restaurer</button></div>
+      <input type="file" id="impFile" accept="application/json,.json" class="hide">
+      <div class="sub" id="dataMsg" style="margin-top:8px"></div>
+    </div></div>
+    <button class="danger" id="resetBtn">Recommencer un C9</button>
+    <p class="foot">Contenu repris du livret Forever C9. Toute personne sous traitement médical doit demander l'accord de son médecin avant de prendre un complément alimentaire.</p>
+  </section>
+</div>
+
+<div id="ov" class="ov hide" role="dialog" aria-modal="true"><div class="ovc" id="ovc"></div></div>
+<div id="sheet" class="ov sheetwrap hide" role="dialog" aria-modal="true"><div class="sheetc" id="sheetc"></div></div>
+
+<nav>
+  <div class="in">
+    <button data-v="jour" aria-selected="true"><span class="i">✓</span>Jour</button>
+    <button data-v="menus" aria-selected="false"><span class="i">🍽</span>Menus</button>
+    <button data-v="courses" aria-selected="false"><span class="i">🛒</span>Courses</button>
+    <button data-v="encas" aria-selected="false"><span class="i">🥕</span>En-cas</button>
+    <button data-v="reperes" aria-selected="false"><span class="i">◎</span>Repères</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+"use strict";
+var DAY1 = new Date(); DAY1.setHours(0,0,0,0);
+var JOURS = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+var MOIS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function dateOf(n){ var d=new Date(DAY1); d.setDate(d.getDate()+(n-1)); return d; }
+function longDate(d){ return JOURS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()]; }
+function shortDate(d){ return d.getDate()+"/"+(d.getMonth()+1); }
+function esc(t){ return String(t).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function el(h){ var t=document.createElement("div"); t.innerHTML=h.trim(); return t.firstChild; }
+
+var R = {
+  pasta:{n:"One pot pasta poulet",k:408,i:["65 g de pâtes complètes (crues)","50 à 85 g de poulet ou dinde","150 g de champignons de Paris","200 ml de bouillon de légumes","1 oignon, 1 gousse d'ail","1 poignée d'épinards","30 g de fromage frais allégé","persil ou ciboulette"],
+    p:"Fais revenir ail et oignon émincés 2 min à l'huile d'olive, ajoute le poulet et les champignons, 2 min de plus. Ajoute épinards et bouillon, porte à ébullition, jette les pâtes et laisse cuire une dizaine de minutes. Hors du feu, incorpore le fromage frais et les herbes jusqu'à obtenir une sauce crémeuse."},
+  curry:{n:"Poulet au curry",k:437,i:["120 g de blanc de poulet","1 càc d'huile de coco","½ tasse de couscous complet","¼ tasse de pois chiches cuits","1 càs de pignons de pin","1 tasse d'épinards frais","½ tasse de bouillon de volaille","curry, cumin, cannelle","1 càs de raisins secs (facultatif)"],
+    p:"Enduis le poulet d'huile de coco, assaisonne curry-cumin-cannelle, 25 min au four à 180 °C. Verse le bouillon bouillant sur le couscous, laisse gonfler 1 min puis égrène à la fourchette. Réchauffe pois chiches, épinards et raisins 90 s au micro-ondes avec 2 càs d'eau, mélange au couscous et pose le poulet dessus."},
+  thon:{n:"Thon au sésame et riz sauvage",k:459,i:["120 g de thon albacore","⅓ tasse de riz sauvage","¼ tasse d'edamame","½ tasse de légumes verts vapeur","1 càc d'huile d'olive","gingembre et ail en poudre","1 càs de vinaigrette sésame-gingembre"],
+    p:"Cuis le riz. Huile le thon, poudre-le de gingembre et d'ail, saisis-le 2 min par face dans une poêle très chaude (cœur rosé). Cuis edamame et légumes à la vapeur. Nappe le tout de vinaigrette. Vinaigrette : gingembre râpé, ail et beurre d'amande mélangés, puis sauce soja en filet, huile de sésame, vinaigre de riz, stévia et graines de sésame."},
+  gaufre:{n:"Gaufre salée à la patate douce",k:384,i:["2 œufs entiers + 2 blancs","¾ tasse de patate douce râpée","½ tasse d'épinards hachés","1 gousse d'ail écrasée","1 càc de ciboulette","huile d'olive"],
+    p:"Mélange 1 œuf et les 2 blancs avec la patate douce râpée, l'ail, la ciboulette et les épinards. Cuis en deux fois au gaufrier légèrement huilé (ou à la poêle comme un pancake) jusqu'à ce que ce soit croustillant. Pendant ce temps, cuis l'œuf restant poché ou au plat et pose-le sur la gaufre."},
+  lentilles:{n:"Salade de lentilles au saumon",k:522,i:["120 g de saumon","¼ tasse de lentilles vertes","carottes, céleri, oignon rouge","1 gousse d'ail, 1 feuille de laurier","thym, romarin, persil","jus de citron, huile d'olive, poivre"],
+    p:"Assaisonne le saumon avec l'ail haché et un peu de jus de citron, grille-le 10 min. Fais mijoter les lentilles à couvert d'eau avec carottes, oignon, ail, céleri, laurier et thym : 20 min à découvert, feu doux. Égoutte, assaisonne citron-persil-romarin-poivre-huile d'olive, et pose le saumon dessus."},
+  burrito:{n:"Burrito bowl",k:573,i:["1 tasse de riz brun","½ tasse de haricots noirs cuits","100 g de poulet grillé","¼ tasse d'oignon haché","½ tasse de tomates","¼ tasse d'avocat en dés","coriandre, citron vert"],
+    p:"Empile dans un bol, dans cet ordre : riz brun, haricots, poulet, oignon, tomates, avocat, coriandre. Presse un quartier de citron vert au moment de manger. L'avocat se coupe le matin même."}
+};
+var MENUS = {
+  3:{din:"pasta"}, 4:{din:"curry"}, 5:{din:"thon"}, 6:{dej:"gaufre"},
+  7:{din:"lentilles"}, 8:{din:"pasta"}, 9:{dej:"burrito",din:"gaufre"}
+};
+var NOTES_MENU = {6:"Gaufre au brunch, shake le soir.",9:"Dernier jour : deux vrais repas, plus de shake au déjeuner ni au dîner.",8:"Le burrito bowl de demain se monte ce soir."};
+
+function repasDej(n){ var m=menuOf(n); return m&&m.dej?R[m.dej]:null; }
+function repasDin(n){ var m=menuOf(n); return m&&m.din?R[m.din]:null; }
+
+function basePlan(n){
+  var b=[];
+  if(n<=2){
+    b.push({k:"pdj",h:"7:30",l:"Petit-déjeuner",s:["1 capsule <b>Forever Lean</b> avec 240 ml d'eau","30 ml de <b>pulpe d'Aloe vera</b> dans un grand verre d'eau","1 comprimé <b>Forever Therm</b>"]});
+    b.push({k:"col",h:"10:00",l:"Collation",s:["1 sachet <b>Forever Fiber</b> dans 200 ml d'eau"],w:"Le Fiber se prend <b>seul</b> : au moins 2 h d'écart avec les autres compléments, sinon il capte les nutriments au passage."});
+    b.push({k:"dej",h:"12:30",l:"Déjeuner",s:["1 capsule <b>Forever Lean</b>","1 dose <b>Forever Lite Ultra</b> dans 240 ml d'eau ou de lait végétal","30 ml de <b>pulpe d'Aloe vera</b>","1 comprimé <b>Forever Therm</b>"]});
+    b.push({k:"din",h:"19:00",l:"Dîner",s:["2 capsules <b>Forever Lean</b>","30 ml de <b>pulpe d'Aloe vera</b>"]});
+    b.push({k:"soir",h:"21:30",l:"Soirée",s:["30 ml de <b>pulpe d'Aloe vera</b>"]});
+  } else {
+    b.push({k:"pdj",h:"7:30",l:"Petit-déjeuner",s:["90 ml de <b>pulpe d'Aloe vera</b> dans un grand verre d'eau","1 capsule <b>Forever Lean</b>","1 dose <b>Forever Lite Ultra</b>","1 comprimé <b>Forever Therm</b>"]});
+    b.push({k:"col",h:"10:00",l:"Collation",s:["1 sachet <b>Forever Fiber</b> dans 200 ml d'eau"],w:"Le Fiber se prend <b>seul</b> : au moins 2 h d'écart avec les autres compléments."});
+    var rd=repasDej(n), rn=repasDin(n);
+    b.push({k:"dej",h:"12:30",l:"Déjeuner",s:["1 capsule <b>Forever Lean</b>",rd?("<b>"+rd.n+"</b> — "+rd.k+" kcal"):"1 dose <b>Forever Lite Ultra</b>","1 comprimé <b>Forever Therm</b>"]});
+    b.push({k:"din",h:"19:00",l:"Dîner",s:["2 capsules <b>Forever Lean</b>",rn?("<b>"+rn.n+"</b> — "+rn.k+" kcal"):"1 dose <b>Forever Lite Ultra</b>"]});
+    b.push({k:"soir",h:"21:30",l:"Soirée",s:["1 grand verre d'eau (240 ml), en plus des 8 de la journée"]});
+  }
+  return b;
+}
+var MOUV=[{k:"ex",l:"30 min d'activité à faible intensité",s:"marche, mobilité, yoga, vélo tranquille"},
+          {k:"etir",l:"5 min d'étirements",s:""},
+          {k:"neat",l:"Bouger 3 min toutes les 30 min",s:"debout aux appels, escaliers, une marche après le déjeuner"}];
+
+var REGLES=[
+ {l:"Le Forever Fiber ne se prend jamais avec le reste",s:"Il lie les nutriments et bloque leur absorption. Garde-le vers 10 h, seul."},
+ {l:"Pesée au jour 1 et au jour 10, pas entre",s:"Le poids oscille pendant les 9 jours, le lire chaque matin ne dit rien d'utile."},
+ {l:"Tu as droit à 200 kcal de plus à partir du jour 3",s:"Prévu pour les hommes : soit une portion de Lite Ultra en plus, soit 200 kcal ajoutées à un repas."},
+ {l:"Activité faible intensité uniquement",s:"Si tu t'entraînes d'habitude, passe en version allégée pendant les 9 jours : mobilité, gainage court, marche. Reprends ton rythme normal au jour 10."},
+ {l:"Ni café ni alcool pendant 9 jours",s:"Prévois un possible mal de tête les deux premiers jours. Le Forever Therm contient du guarana, tu ne seras pas à zéro caféine pour autant."},
+ {l:"Les jours 1 et 2 sont les plus durs",s:"Aucun repas solide, seulement un shake au déjeuner et les en-cas autorisés. C'est normal d'avoir faim, ça s'atténue au jour 3."},
+ {l:"Sel discret, herbes généreuses",s:"Gingembre, ail, basilic, cannelle, romarin, thym, curcuma."}
+];
+var MESURES=[
+ {k:"poids",l:"Poids (kg)",h:"Au réveil, après être passé aux toilettes, à jeun, sans vêtements."},
+ {k:"poitrine",l:"Poitrine / dos (cm)",h:"Mètre horizontal juste sous les aisselles, en faisant le tour du dos."},
+ {k:"taille",l:"Taille (cm)",h:"Environ 5 cm au-dessus des crêtes iliaques, sans rentrer le ventre."},
+ {k:"hanches",l:"Hanches (cm)",h:"Tour le plus large des fesses, pieds joints."},
+ {k:"cuisseG",l:"Cuisse gauche (cm)",h:"Tour le plus large, haut de cuisse."},
+ {k:"cuisseD",l:"Cuisse droite (cm)",h:"Même hauteur que la gauche."}
+];
+var PROTO=[
+ {l:"Même heure, mêmes conditions",s:"Demain au réveil et le 30 au réveil. À jeun, avant de boire, après le passage aux toilettes. C'est la seule façon que les deux chiffres soient comparables."},
+ {l:"Balance sur du dur",s:"Carrelage ou parquet, jamais un tapis. Même emplacement les deux fois, sinon l'écart vient du sol."},
+ {l:"Mètre ruban souple, posé sans serrer",s:"Le ruban touche la peau, horizontal tout autour, sans creuser. Debout, détendu, bras le long du corps, en fin d'expiration."},
+ {l:"Deux passages, tu gardes la moyenne",s:"Mesure, relâche complètement le ruban, recommence. Plus de 1 cm d'écart : une troisième fois."},
+ {l:"Note tes repères",s:"À quelle hauteur tu mesures les cuisses. Dans 9 jours tu ne t'en souviendras pas, et 2 cm plus haut sur la cuisse change tout."},
+ {l:"Deux photos, face et profil",s:"Même endroit, même lumière, même tenue. Souvent plus parlant que la balance au jour 10."}
+];
+var INTERDITS=["Alcool","Café et caféine","Sodas et boissons « sans sucre »","Plats préparés et conserves","Fast-food","Lait, yaourt, beurre, crème glacée","Sucre, sirop d'érable, miel","Huiles hydrogénées, margarine","Viandes non maigres","Riz, pâtes, pain, avoine, céréales"];
+var ENCAS=[
+ {t:"1 portion par jour",q:"Une seule ligne dans cette liste. Fruits à coque et graines crus et non salés.",
+  g:[["⅛ de tasse","Noix, noix de pécan, noisettes, amandes, graines de courge, de lin, de grenade"],
+     ["½ tasse","Myrtilles, raisins, framboises, mûres, fraises, cerises"],
+     ["1 entier","Pamplemousse, pomme, poire, pêche, orange, banane, 2 prunes"]]},
+ {t:"2 portions par jour",q:"Deux portions à choisir ici, éventuellement deux fois le même légume.",
+  g:[["½ tasse","Betteraves, carottes, choux de Bruxelles, courges, courgettes, chou kale, chou, asperges (8 tiges), pois cassés, tomates"],
+     ["¼ de tasse","Algue alimentaire"],
+     ["1 tasse","Chou-fleur, brocoli"]]},
+ {t:"À volonté",q:"Crus ou légèrement cuits à la vapeur, sans matière grasse.",
+  g:[["","Roquette, salade, endive, céleri, oignon vert, concombre, aubergine, poireau, épinards, haricots verts"]]}
+];
+var FOREVER=[
+ {id:"f-aloe",n:"Pulpe d'Aloe vera",q:"2 × 1 L",d:"870 ml sur 9 jours : 120 ml/jour les J1-J2, puis 90 ml/jour."},
+ {id:"f-lean",n:"Forever Lean",q:"36 capsules",d:"4 par jour : 1 le matin, 1 le midi, 2 le soir."},
+ {id:"f-therm",n:"Forever Therm",q:"18 comprimés",d:"2 par jour : matin et midi."},
+ {id:"f-fiber",n:"Forever Fiber",q:"9 sachets",d:"1 par jour, seul, vers 10 h."},
+ {id:"f-lite",n:"Forever Lite Ultra",q:"15 doses",d:"2 doses les J1-J2, puis 13 du J3 au J9 avec ce plan de menus : 2 par jour, sauf 1 seule le J9."}
+];
+var FOREVER_NOTE="Le kit C9 contient <b>exactement</b> ces quantités, sans aucune marge. Si tu prends tes 200 kcal supplémentaires sous forme de shake, il faut jusqu'à 7 doses de Lite Ultra en plus. Sinon, ajoute-les dans l'assiette.";
+var COURSES=[
+ {t:"Viandes, poissons, œufs",items:[
+  {id:"c-poulet",n:"Blancs de poulet",q:"400 g",d:"Pâtes (J3, J8), curry (J4), burrito bowl (J9)."},
+  {id:"c-saumon",n:"Pavé de saumon",q:"120 g",d:"Salade de lentilles (J7)."},
+  {id:"c-thon",n:"Steak de thon albacore",q:"120 g",d:"Thon au sésame (J5)."},
+  {id:"c-oeufs",n:"Œufs",q:"8",d:"Deux gaufres (J6, J9) : 2 entiers + 2 blancs chacune."}]},
+ {t:"Fruits et légumes",items:[
+  {id:"c-epinards",n:"Épinards frais",q:"400 g",d:"Pâtes, curry, gaufres, et en-cas à volonté."},
+  {id:"c-champ",n:"Champignons de Paris",q:"300 g"},
+  {id:"c-oignon",n:"Oignons jaunes",q:"3"},
+  {id:"c-oignonr",n:"Oignon rouge",q:"1"},
+  {id:"c-ail",n:"Ail",q:"1 tête"},
+  {id:"c-patate",n:"Patate douce",q:"1 grosse (≈ 300 g)"},
+  {id:"c-carotte",n:"Carottes",q:"2"},
+  {id:"c-celeri",n:"Céleri branche",q:"1 pied",d:"Une branche pour les lentilles, le reste en en-cas."},
+  {id:"c-tomate",n:"Tomates",q:"2"},
+  {id:"c-avocat",n:"Avocat",q:"1",d:"Burrito bowl, et le reste sur les gaufres."},
+  {id:"c-vert",n:"Brocoli ou haricots verts",q:"150 g"},
+  {id:"c-ging",n:"Gingembre frais",q:"5 cm"},
+  {id:"c-citron",n:"Citron",q:"1"},
+  {id:"c-citronv",n:"Citron vert",q:"1"}]},
+ {t:"Herbes fraîches",items:[
+  {id:"c-herbes",n:"Persil plat, ciboulette, coriandre",q:"1 bouquet de chaque"},
+  {id:"c-arom",n:"Romarin, thym, laurier",q:"frais ou secs"}]},
+ {t:"Féculents et légumineuses",items:[
+  {id:"c-pates",n:"Pâtes complètes",q:"130 g"},
+  {id:"c-couscous",n:"Couscous complet",q:"90 g"},
+  {id:"c-rizs",n:"Riz sauvage",q:"60 g"},
+  {id:"c-rizb",n:"Riz brun",q:"70 g cru"},
+  {id:"c-lentilles",n:"Lentilles vertes",q:"50 g"},
+  {id:"c-pois",n:"Pois chiches cuits",q:"1 petit bocal",d:"Au naturel, à rincer."},
+  {id:"c-haricots",n:"Haricots noirs cuits",q:"1 petit bocal",d:"Au naturel, à rincer."},
+  {id:"c-edamame",n:"Edamame surgelés",q:"1 sachet"}]},
+ {t:"Épicerie",items:[
+  {id:"c-bouillon",n:"Bouillon de légumes et de volaille",q:"cubes pauvres en sel",d:"400 ml de légumes et 120 ml de volaille."},
+  {id:"c-huiles",n:"Huiles : olive, coco, sésame",q:"1 de chaque"},
+  {id:"c-soja",n:"Sauce soja pauvre en sel ou tamari",q:"1"},
+  {id:"c-vinaigre",n:"Vinaigre de riz",q:"1"},
+  {id:"c-amande",n:"Purée d'amande",q:"1 petit pot"},
+  {id:"c-stevia",n:"Stévia",q:"1"},
+  {id:"c-graines",n:"Graines de sésame, pignons de pin",q:"1 petit sachet de chaque"},
+  {id:"c-epices",n:"Épices",q:"curry, cumin, cannelle, gingembre et ail en poudre, poivre"},
+  {id:"c-raisins",n:"Raisins secs",q:"facultatif"}]},
+ {t:"À arbitrer",items:[
+  {id:"c-fromage",n:"Fromage frais allégé",q:"60 g",d:"Pour les deux one pot pasta."}],
+  note:"La recette officielle l'utilise, mais le livret exclut aussi les produits laitiers pendant le C9. Les deux se contredisent : tu peux t'en passer, les pâtes restent crémeuses avec le bouillon réduit."},
+ {t:"Shakes",items:[
+  {id:"c-lait",n:"Boisson végétale sans sucre",q:"≈ 3,5 L",d:"15 shakes de 240 ml, à moins de les faire à l'eau."}]},
+ {t:"En-cas sur 9 jours",items:[
+  {id:"c-fruits",n:"Fruits ou fruits à coque crus non salés",q:"9 portions",d:"Une par jour au total : pomme, poire, orange, fruits rouges, ou une petite poignée d'amandes ou de noix."},
+  {id:"c-legcrus",n:"Légumes à portion",q:"≈ 18 portions",d:"Deux par jour : carottes, courgettes, chou-fleur, brocoli, tomates."},
+  {id:"c-volonte",n:"Légumes à volonté",q:"au besoin",d:"Concombre, salade, endive, roquette, céleri."}]}
+];
+
+
+
+var DAYMSG={
+ 1:"Premier jour de reset. Avoir faim fait partie du jeu : bois, croque des légumes à volonté, ça passe.",
+ 2:"Dernier jour sans repas solide. Le mal de tête du sevrage de café tombe souvent aujourd'hui, c'est normal.",
+ 3:"Bascule : premier vrai repas ce soir. La faim devrait commencer à se calmer.",
+ 4:"Le rythme est pris. Aujourd'hui, vise surtout les 8 verres d'eau.",
+ 5:"Mi-parcours. Relis ta note du jour 1 : tu sens déjà la différence ?",
+ 6:"Jour de la gaufre. Gare aux repas partagés : prépare ta réponse à l'avance.",
+ 7:"Plus que trois jours. Cuisine les lentilles et le saumon tranquillement.",
+ 8:"Avant-dernier jour. Ce soir, monte le burrito bowl de demain.",
+ 9:"Dernière ligne droite : deux vrais repas aujourd'hui. Demain matin, mesures.",
+ 10:"C'est fini. Mesure-toi au réveil, dans les mêmes conditions qu'au jour 1, puis regarde le chemin parcouru."
+};
+var ACT={
+ 1:"Idée : 30 min de balade tranquille.",
+ 2:"Idée : marche lente + 10 min de mobilité hanches et épaules.",
+ 3:"Idée : yoga débutant ou longs étirements.",
+ 4:"Idée : marche un peu plus vive, en pouvant toujours parler.",
+ 5:"Idée : circuit doux au poids du corps, sans essoufflement.",
+ 6:"Idée : longue balade du samedi, rythme tranquille.",
+ 7:"Idée : vélo tranquille ou marche, 30 à 45 min.",
+ 8:"Idée : mobilité et gainage court, au calme.",
+ 9:"Idée : 30 min de marche, et 3 min debout toutes les 30 min."
+};
+var FEEL=[
+ {k:"e",l:"Énergie",v:["très basse","basse","correcte","bonne","au top"]},
+ {k:"f",l:"Faim",v:["aucune","légère","modérée","forte","très forte"]},
+ {k:"s",l:"Sommeil",v:["très mauvais","mauvais","moyen","bon","excellent"]}
+];
+var ALOES={gel:{n:"Aloe Vera Gel",r:false},peche:{n:"Aloe Pêche",r:true},berry:{n:"Aloe Berry Nectar",r:true}};
+function aloe(){ return ALOES[state.aloe]||null; }
+function restricted(){ var a=aloe(); return !!(a&&a.r); }
+function aloeTxt(t){ var a=aloe(); return a ? t.replace(/pulpe d'Aloe vera/gi,"Forever "+a.n) : t; }
+REGLES.unshift({l:"Ta pulpe d'Aloe décide de tes en-cas",s:"Avec l'Aloe Pêche ou le Berry Nectar, un peu plus sucrés que l'Aloe Vera Gel, la portion quotidienne de fruit ou de fruits à coque est exclue. Les légumes restent autorisés."});
+function aloeNote(){ var a=aloe(); if(!a) return "Pas encore choisie : indique-la pour adapter tes en-cas.";
+  return a.r ? "Avec le Forever "+a.n+", pas de fruit ni de fruits à coque pendant les 9 jours. Légumes à portion et à volonté inchangés."
+             : "Avec l'Aloe Vera Gel, ta portion quotidienne de fruit ou de fruits à coque est autorisée."; }
+function fillPicker(host){ if(!host) return; host.innerHTML="";
+  Object.keys(ALOES).forEach(function(k){ var b=el('<button aria-pressed="'+(state.aloe===k)+'">'+ALOES[k].n+'</button>');
+    b.addEventListener("click",function(){ state.aloe=k; save(); render(); }); host.appendChild(b); }); }
+function renderAloe(){
+  fillPicker(document.getElementById("aloeE")); fillPicker(document.getElementById("aloeR"));
+  var rn=document.getElementById("aloeRnote"); if(rn) rn.textContent=aloeNote();
+  document.getElementById("aloeAsk").innerHTML="";
+  var sa=document.getElementById("startAsk"); sa.innerHTML=""; var ask=sa;
+  if(!state.start){
+    var t0=new Date(); var iso=t0.getFullYear()+"-"+String(t0.getMonth()+1).padStart(2,"0")+"-"+String(t0.getDate()).padStart(2,"0");
+    var sc=el('<div class="card startc"><div style="padding:14px"><div class="lbl">Quand commences-tu ton C9 ?</div><div class="sub">Le jour 1 est le premier jour de reset. Les dates, le bandeau et les menus se calent dessus.</div><input type="date" value="'+iso+'"><button class="go">C\'est mon jour 1</button></div></div>');
+    sc.querySelector(".go").addEventListener("click",function(){ var v=sc.querySelector("input").value; if(!v) return; state.start=v; norm(); save(); render(); });
+    sa.appendChild(sc);
+  }
+  if(!aloe() && cur<=9){
+    var c=el('<div class="card"><div style="padding:14px"><div class="lbl">Quelle pulpe d\'Aloe utilises-tu ?</div>'+
+      '<div class="sub">Avec l\'Aloe Pêche ou le Berry Nectar, la portion de fruit ou de fruits à coque est exclue. Le suivi s\'adapte à ton choix.</div>'+
+      '<div class="seg" style="margin-top:10px"></div></div></div>');
+    fillPicker(c.querySelector(".seg")); ask.appendChild(c);
+  }
+  fillFib(document.getElementById("fibR"));
+  if(!fiber() && cur<=9){
+    var c2=el('<div class="card"><div style="padding:14px"><div class="lbl">Quel Forever Fiber pour la collation ?</div>'+
+      '<div class="sub">Le reste ne change pas : toujours seul, à 2 h d\'écart des autres compléments.</div>'+
+      '<div class="seg" style="margin-top:10px"></div></div></div>');
+    fillFib(c2.querySelector(".seg")); ask.appendChild(c2);
+  }
+  fillExt(document.getElementById("extR")); fillExt(document.getElementById("extM"));
+  var en=document.getElementById("extRnote"); if(en) en.textContent=extraNote();
+  if(!extra() && cur<=9){
+    var c3=el('<div class="card"><div style="padding:14px"><div class="lbl">Tes 200 kcal en plus, du J3 au J9 ?</div>'+
+      '<div class="sub">Option prévue par le livret pour les hommes. En shake : un Lite Ultra bonus à 16 h. Dans le plat : une portion en plus au repas.</div>'+
+      '<div class="seg" style="margin-top:10px"></div></div></div>');
+    fillExt(c3.querySelector(".seg")); ask.appendChild(c3);
+  }
+}
+var FIBERS={poudre:{n:"Forever Fiber",t:"1 sachet de <b>Forever Fiber</b> dans 200 ml d'eau",q:"9 sachets"},
+  fusion:{n:"Forever Fiber Fusion",t:"1 dose de <b>Forever Fiber Fusion</b>",q:"9 doses"}};
+function fiber(){ return FIBERS[state.fiber]||null; }
+function fibTxt(t){ var f=fiber(); return f ? t.replace("1 sachet <b>Forever Fiber</b> dans 200 ml d'eau",f.t) : t; }
+function fillFib(host){ if(!host) return; host.innerHTML="";
+  Object.keys(FIBERS).forEach(function(k){ var b=el('<button aria-pressed="'+(state.fiber===k)+'">'+(k==="poudre"?"Fiber":"Fiber Fusion")+'</button>');
+    b.addEventListener("click",function(){ state.fiber=k; save(); render(); }); host.appendChild(b); }); }
+
+/* ---------- état ---------- */
+var state={d:{},mes:{},obj:"",mesnote:"",k:{},cel:{},next:"2027-03-29"};
+var docRef=null, saveTimer=null, cur=1, view="jour";
+var LS="suivi-c9-pwa";
+var MEALS=["pdj","col","dej","din","soir"], MOVES=["ex","etir","neat"];
+var C={rg1:2*Math.PI*42,rg2:2*Math.PI*30,rg3:2*Math.PI*18};
+
+var lastStart=null;
+function norm(){ ["d","mes","k","cel","swap"].forEach(function(k){ if(!state[k]||typeof state[k]!=="object") state[k]={}; });
+  if(typeof state.obj!=="string") state.obj=""; if(typeof state.mesnote!=="string") state.mesnote="";
+  ["hist"].forEach(function(k){ if(!isObj(state[k])) state[k]={}; });
+  if(!isObj(state.tr)) state.tr={}; if(!isObj(state.tr.keep)) state.tr.keep={};
+  if(!isObj(state.en)) state.en={}; ["w","m","sn"].forEach(function(k){ if(!isObj(state.en[k])) state.en[k]={}; });
+  var m=state.mes;
+  if(m.cuisses_1&&!m.cuisseG_1){ var q=String(m.cuisses_1).split(/[.,]/); if(q.length===2){ m.cuisseG_1=q[0]; m.cuisseD_1=q[1]; } }
+  if(state.start!==lastStart){
+    lastStart=state.start||null;
+    if(state.start){ var p=state.start.split("-"); DAY1=new Date(+p[0],+p[1]-1,+p[2]); }
+    else { DAY1=new Date(); DAY1.setHours(0,0,0,0); }
+    var pd=programDay(); cur= pd<1?1:(pd>24?25:pd);
+  }
+}
+var EXTRAS={sans:{n:"Sans"},shake:{n:"En shake Lite Ultra"},plat:{n:"Dans le plat"}};
+var PLUS200={pasta:"+50 g de pâtes complètes crues",curry:"+60 g de couscous complet cru",thon:"+⅓ tasse de riz sauvage cru",
+  gaufre:"+2 œufs et quelques dés d'avocat",lentilles:"+60 g de lentilles vertes crues",burrito:"+½ tasse de riz brun cuit et ¼ d'avocat"};
+var EXTRA_Q={"c-pates":"+ 100 g","c-couscous":"+ 60 g","c-rizs":"+ 55 g","c-oeufs":"+ 4","c-lentilles":"+ 60 g","c-avocat":"+ ½"};
+function extra(){ return EXTRAS[state.extra]?state.extra:null; }
+function extraSlot(n){ if(n<3||n>9) return null; var m=menuOf(n); if(n===9) return "din"; return m.dej?"dej":(m.din?"din":null); }
+function plan(n){
+  var b=basePlan(n), x=extra();
+  if(n>=3&&x==="plat"){ var sl=extraSlot(n), key=menuOf(n)[sl];
+    b.forEach(function(bl){ if(bl.k===sl&&key&&PLUS200[key]){ bl.s=bl.s.slice(); bl.s.push("+200 kcal : "+PLUS200[key]+" (≈ 200 kcal)"); } }); }
+  if(n>=3&&x==="shake"){ var i=0; while(i<b.length&&b[i].k!=="din") i++;
+    b.splice(i,0,{k:"bonus",h:"16:00",l:"Shake bonus",s:["1 dose de <b>Forever Lite Ultra</b> dans 240 ml d'eau ou de lait végétal : tes 200 kcal en plus"]}); }
+  return b;
+}
+function totalMeals(n){ return n>=11?tKeys(n).length:plan(n).length; }
+function fillExt(host){ if(!host) return; host.innerHTML="";
+  Object.keys(EXTRAS).forEach(function(k){ var b=el('<button aria-pressed="'+(state.extra===k)+'">'+EXTRAS[k].n+'</button>');
+    b.addEventListener("click",function(){ state.extra=k; save(); render(); }); host.appendChild(b); }); }
+function extraNote(){ var x=extra(); if(!x) return "Pas encore choisi.";
+  return x==="sans"?"Tu restes à environ 1 000 à 1 200 kcal par jour, sans supplément."
+   : x==="shake"?"Un shake Lite Ultra bonus à 16 h, du J3 au J9 : 7 doses en plus des 15 du kit."
+   : "Une portion en plus dans ton plat du jour, indiquée dans les prises et les menus."; }
+function menuOf(n){ var m=MENUS[n]||{}; if(n>=3&&n<=8&&state.swap&&state.swap[n]) return {dej:m.din,din:m.dej}; return m; }
+function rangeTxt(){ var a=dateOf(1), b=dateOf(9);
+  return a.getMonth()===b.getMonth() ? a.getDate()+" → "+b.getDate()+" "+MOIS[b.getMonth()] : a.getDate()+" "+MOIS[a.getMonth()]+" → "+b.getDate()+" "+MOIS[b.getMonth()]; }
+function defNext(){ var d=dateOf(10); d.setMonth(d.getMonth()+6); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function dayState(n){ var s=state.d[n]; if(!s){ s=state.d[n]={}; }
+  if(!s.c) s.c={}; if(typeof s.w!=="number") s.w=0; if(typeof s.n!=="string") s.n="";
+  if(!s.r) s.r={}; if(typeof s.fr!=="number") s.fr=0; if(typeof s.lg!=="number") s.lg=0; return s; }
+function cnt(n,keys){ var s=dayState(n),c=0; keys.forEach(function(k){ if(s.c[k]) c++; }); return c; }
+function mealsDone(n){ return cnt(n, n>=11?tKeys(n):plan(n).map(function(b){ return b.k; })); }
+function movesDone(n){ return cnt(n,movesKeys(n)); }
+function doneCount(n){ return mealsDone(n)+movesDone(n)+(dayState(n).w>=8?1:0); }
+function isDone(n){ return n>=1&&n<=9&&doneCount(n)>=totalMeals(n)+4; }
+function programDay(){ var t=new Date(); t.setHours(0,0,0,0); return Math.round((t-DAY1)/86400000)+1; }
+function streak(){ var td=Math.min(programDay(),9); var n=isDone(td)?td:td-1, c=0; while(n>=1&&isDone(n)){ c++; n--; } return c; }
+
+/* badges */
+function chefCount(){ var set={}; for(var n=3;n<=9;n++){ var m=menuOf(n), s=dayState(n); if(m.dej&&s.c.dej) set[m.dej]=1; if(m.din&&s.c.din) set[m.din]=1; } return Object.keys(set).length; }
+function hydraStreak(){ var best=0,c=0; for(var n=1;n<=9;n++){ if(dayState(n).w>=8){ c++; if(c>best) best=c; } else c=0; } return best; }
+function fiberCount(){ var c=0; for(var n=1;n<=9;n++) if(dayState(n).c.col) c++; return c; }
+var BADGES=[
+ {id:"reset",i:"🌱",n:"Reset terminé",d:"Toutes les prises des jours 1 et 2",p:function(){ return [mealsDone(1)+mealsDone(2),10]; }},
+ {id:"hydra",i:"💧",n:"Hydraté",d:"8 verres, trois jours de suite",p:function(){ return [Math.min(hydraStreak(),3),3]; }},
+ {id:"mi",i:"🧭",n:"Mi-parcours",d:"Jour 5 bouclé",p:function(){ return [isDone(5)?1:0,1]; }},
+ {id:"chef",i:"🍳",n:"Chef",d:"Les 6 recettes cuisinées",p:function(){ return [chefCount(),6]; }},
+ {id:"fiber",i:"⏱",n:"Zéro oubli de Fiber",d:"Le Fiber pris les 9 jours",p:function(){ return [fiberCount(),9]; }},
+ {id:"fin",i:"🏁",n:"Arrivée",d:"Jour 9 bouclé",p:function(){ return [isDone(9)?1:0,1]; }}
+];
+function earned(){ var o={}; BADGES.forEach(function(b){ var p=b.p(); if(p[0]>=p[1]) o[b.id]=1; }); return o; }
+function badgeHTML(b){ var p=b.p(), ok=p[0]>=p[1];
+  return '<div class="badge'+(ok?' ok':'')+'"><div class="bi">'+b.i+'</div><div><div class="bn">'+b.n+'</div><div class="bd">'+b.d+(ok?'':' · '+p[0]+'/'+p[1])+'</div></div></div>'; }
+function renderBadges(){ ["badgesR","badges10"].forEach(function(id){ var h=document.getElementById(id); if(h) h.innerHTML=BADGES.map(badgeHTML).join(""); }); }
+
+/* ---------- stockage : privé, fusion champ par champ entre appareils ---------- */
+var legacyLocal=false, base={}, ready=false, writing=false, docExists=false, flushTimer=null, pendingRender=false, syncState="local";
+function clone(o){ return JSON.parse(JSON.stringify(o||{})); }
+function isObj(o){ return o&&typeof o==="object"&&!Array.isArray(o); }
+function diff(a,b){
+  if(isObj(a)){ var out={},has=false; Object.keys(a).forEach(function(k){ var d=diff(a[k],isObj(b)?b[k]:undefined); if(d!==undefined){ out[k]=d; has=true; } }); return has?out:undefined; }
+  if(b===undefined&&(a===0||a===""||a===false||a===null||a===undefined)) return undefined;
+  return JSON.stringify(a)===JSON.stringify(b)?undefined:a;
+}
+function merge(t,p){ Object.keys(p||{}).forEach(function(k){ if(isObj(p[k])&&isObj(t[k])) merge(t[k],p[k]); else t[k]=isObj(p[k])?clone(p[k]):p[k]; }); return t; }
+function persistLocal(){ try{ localStorage.setItem(LS,JSON.stringify({state:state,base:base})); }catch(e){} }
+function paintSync(){ var e=document.getElementById("sync"); if(e) e.textContent= syncState==="ok"?"· synchronisé":(syncState==="wait"?"· enregistrement…":"· sur cet appareil"); }
+function save(){ persistLocal(); clearTimeout(flushTimer); flushTimer=setTimeout(flush,600); }
+function flush(){
+  if(!docRef||!ready||writing) return;
+  var patch=diff(state,base); if(!patch){ syncState="ok"; paintSync(); return; }
+  writing=true; syncState="wait"; paintSync();
+  var snapshotOfState=clone(state);
+  var op= docExists ? docRef.update(patch) : docRef.set(snapshotOfState);
+  op.then(function(){
+    base= docExists ? merge(base,clone(patch)) : snapshotOfState; docExists=true; writing=false; persistLocal();
+    if(diff(state,base)) flush(); else { syncState="ok"; paintSync(); }
+  },function(){ writing=false; syncState="local"; paintSync(); });
+}
+function safeRender(){ var a=document.activeElement;
+  if(a&&(a.tagName==="TEXTAREA"||(a.tagName==="INPUT"&&a.type!=="range"))){ pendingRender=true; return; } render(); }
+document.addEventListener("focusout",function(){ if(pendingRender){ pendingRender=false; setTimeout(safeRender,0); } });
+function onSnap(snap){
+  docExists=!!snap.exists;
+  if(snap.hasPendingWrites) return;
+  var remote= snap.exists ? clone(snap.data()) : {};
+  var local=diff(state,base);
+  if(!ready&&snap.exists&&Object.keys(base).length===0&&!legacyLocal) local=null;
+  var changed= JSON.stringify(remote)!==JSON.stringify(base);
+  base=remote; state=merge(clone(remote),local||{}); norm(); ready=true; persistLocal();
+  if(changed||!ready) safeRender();
+  if(diff(state,base)) flush(); else { syncState="ok"; paintSync(); }
+}
+async function load(){
+  try{ var raw=localStorage.getItem(LS); if(raw){ var o=JSON.parse(raw);
+    if(o&&o.state){ state=Object.assign(state,o.state); base=o.base||{}; }
+    else if(o&&o.d){ state=Object.assign(state,o); base={}; legacyLocal=true; } } }catch(e){}
+  norm(); render(); paintSync();
+  ready=true; syncState="local"; paintSync();
+}
+
+/* ---------- actions ---------- */
+function afterChange(n,before){
+  paintHeader(); paintDays(); paintNext(); syncBoxes(); renderBadges();
+  var now=earned(), nb=BADGES.filter(function(b){ return now[b.id]&&!before[b.id]; });
+  if(isDone(n)&&!state.cel[n]){
+    state.cel[n]=true; save();
+    var st=streak();
+    var txt = n===9 ? "Programme terminé. Demain matin : mesures, au réveil et à jeun."
+      : "Tout est coché, eau comprise."+(st>1?" Série de "+st+" jours complets.":"");
+    showOv(true,"Jour "+n+" bouclé",txt,nb);
+  } else if(nb.length){
+    showOv(false,nb.length>1?"Badges débloqués":"Badge débloqué","",nb);
+  }
+}
+function toggle(n,key,force){
+  var before=earned(), s=dayState(n);
+  s.c[key]= force===true ? true : !s.c[key];
+  save(); afterChange(n,before);
+}
+function setWater(n,v){
+  var before=earned(); dayState(n).w=Math.max(0,Math.min(8,v)); save();
+  if(n===cur) paintWater(); afterChange(n,before);
+}
+function showOv(check,title,text,badges){
+  var c=document.getElementById("ovc");
+  c.innerHTML=(check?'<svg class="bigcheck" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg>'
+      :'<div class="bigicon">'+(badges[0]?badges[0].i:"✨")+'</div>')+
+    '<h2>'+title+'</h2>'+(text?'<p>'+text+'</p>':'<p></p>')+
+    badges.map(function(b){ return '<div class="badge ok"><div class="bi">'+b.i+'</div><div><div class="bn">'+b.n+'</div><div class="bd">'+b.d+'</div></div></div>'; }).join("")+
+    '<button class="ovb" id="ovClose">Continuer</button>';
+  var o=document.getElementById("ov"); o.classList.remove("hide");
+  document.getElementById("ovClose").addEventListener("click",function(){ o.classList.add("hide"); });
+}
+document.getElementById("ov").addEventListener("click",function(e){ if(e.target===this) this.classList.add("hide"); });
+document.getElementById("sheet").addEventListener("click",function(e){ if(e.target===this) this.classList.add("hide"); });
+
+/* ---------- en-tête ---------- */
+function setRing(id,frac){ var c=document.getElementById(id), L=C[id]; frac=Math.max(0,Math.min(1,frac));
+  c.style.strokeDasharray=L; c.style.strokeDashoffset=L*(1-frac); c.style.strokeOpacity=frac>0?1:0; }
+function paintHeaderC9(){
+  var d10=cur===10;
+  document.getElementById("daynum").textContent=cur;
+  document.getElementById("dayDate").textContent=longDate(dateOf(cur));
+  document.getElementById("rings").classList.toggle("hide",d10);
+  document.getElementById("legend").classList.toggle("hide",d10);
+  if(d10){ document.getElementById("dayState").textContent="Jour des mesures"; }
+  else{
+    var s=dayState(cur), m=mealsDone(cur), mv=movesDone(cur);
+    setRing("rg1",m/totalMeals(cur)); setRing("rg2",s.w/8); setRing("rg3",mv/3);
+    document.getElementById("lg1").textContent=m+"/"+totalMeals(cur);
+    document.getElementById("lg2").textContent=s.w+"/8";
+    document.getElementById("lg3").textContent=mv+"/3";
+    document.getElementById("dayState").textContent=isDone(cur)?"Journée bouclée ✓":(doneCount(cur)+" sur "+(totalMeals(cur)+4));
+  }
+  var st=streak();
+  document.getElementById("kicker").textContent="Programme C9 · "+rangeTxt()+(st>0?" · série de "+st+" jour"+(st>1?"s complets":" complet"):"");
+  var rail=document.getElementById("rail"); rail.innerHTML="";
+  for(var i=1;i<=9;i++){ var s2=document.createElement("i"); var cl=[];
+    if(i===2||i===5||i===9) cl.push("m");
+    if(isDone(i)) cl.push("on"); else if(i===cur) cl.push("now");
+    s2.className=cl.join(" "); rail.appendChild(s2); }
+}
+function paintDaysC9(){
+  var box=document.getElementById("days"); box.innerHTML="";
+  for(var i=1;i<=10;i++){ (function(n){
+    var b=document.createElement("button");
+    b.className="day"+(isDone(n)?" done":"")+(n===10?" j10":"");
+    b.setAttribute("aria-pressed",String(n===cur));
+    b.innerHTML="J"+n+'<span class="dd">'+shortDate(dateOf(n))+"</span>";
+    b.addEventListener("click",function(){ cur=n; renderJour(); paintHeader(); paintDays(); paintNext(); });
+    box.appendChild(b);
+  })(i); }
+}
+
+/* ---------- prochaine prise ---------- */
+function toMin(h){ var p=h.split(":"); return (+p[0])*60+(+p[1]); }
+function fmtDur(m){ m=Math.abs(m); if(m<60) return m+" min"; var h=Math.floor(m/60), r=m%60; return h+" h"+(r?" "+(r<10?"0":"")+r:""); }
+function paintNextC9(){
+  var box=document.getElementById("next"), td=programDay();
+  if(view!=="jour"||cur!==td||td<1||td>9){ box.classList.add("hide"); return; }
+  box.classList.remove("hide");
+  var now=new Date(), nm=now.getHours()*60+now.getMinutes();
+  var blocks=plan(td), s=dayState(td), b=null, late=[];
+  blocks.forEach(function(x){ if(s.c[x.k]) return; if(toMin(x.h)>=nm-60){ if(!b) b=x; } else late.push(x); });
+  var lateHTML= late.length ? '<div class="late">'+late.map(function(x){ return '<button data-k="'+x.k+'">✓ '+x.l+' · '+x.h.replace(":"," h ")+'</button>'; }).join("")+'</div>' : "";
+  if(!b){
+    var left=8-s.w;
+    box.innerHTML= late.length
+      ? '<div class="nk">Plus de prise prévue aujourd\'hui</div><div class="nl">'+late.length+' oubli'+(late.length>1?"s":"")+' à cocher ?</div><div class="ns">Coche ce que tu as pris sans le noter.</div>'+lateHTML
+      : '<div class="nk">Prises du jour</div><div class="nl">Tout est pris ✓</div><div class="ns">'+(left>0?"Il reste "+left+" verre"+(left>1?"s":"")+" d'eau pour boucler la journée.":"Eau comprise. Rien d'autre à faire aujourd'hui.")+'</div>';
+  } else {
+    var diffm=toMin(b.h)-nm;
+    var when= diffm>0 ? "dans "+fmtDur(diffm) : (diffm>=-15 ? "maintenant" : "prévue il y a "+fmtDur(-diffm));
+    var items=b.s.map(function(x){ return fibTxt(aloeTxt(x)).replace(/<[^>]+>/g,""); }).join(" · ");
+    box.innerHTML='<div class="nk">Prochaine prise · '+b.h.replace(":"," h ")+' · '+when+'</div><div class="nl">'+b.l+'</div><div class="ns">'+items+'</div>'+
+      '<button class="nb" id="nextDone">C\'est fait</button>'+(late.length?'<div class="ns" style="margin-top:12px">Pas coché plus tôt :</div>'+lateHTML:"");
+    document.getElementById("nextDone").addEventListener("click",function(){ toggle(td,b.k,true); });
+  }
+  box.querySelectorAll(".late button").forEach(function(x){ x.addEventListener("click",function(){ toggle(td,x.getAttribute("data-k"),true); }); });
+}
+
+/* ---------- vue jour ---------- */
+var CHECK='<svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg>';
+function syncBoxes(){ var s=dayState(cur);
+  document.querySelectorAll("#jourBody .box[data-key], #trBody .box[data-key]").forEach(function(b){ b.setAttribute("aria-checked",String(!!s.c[b.getAttribute("data-key")])); }); }
+function boxBtn(key,label){ var b=el('<button class="box" role="checkbox" data-key="'+key+'" aria-checked="'+(!!dayState(cur).c[key])+'" aria-label="'+esc(label)+'">'+CHECK+'</button>');
+  b.addEventListener("click",function(){ toggle(cur,key); }); return b; }
+function paintWater(){ var s=dayState(cur);
+  document.querySelectorAll("#jourBody .glass, #trBody .glass").forEach(function(g,i){ g.classList.toggle("on",s.w>=i+1); });
+  var l=document.getElementById("wlab");
+  if(l) l.textContent= s.w>=8 ? "8 verres sur 8 : hydratation bouclée." : s.w+" verre"+(s.w>1?"s":"")+" sur 8 · encore "+(8-s.w); }
+function renderFeel(){
+  var host=document.getElementById("feel"); host.innerHTML=""; var s=dayState(cur);
+  FEEL.forEach(function(f){
+    var v=s.r[f.k], set=typeof v==="number";
+    var row=el('<div class="fr"><div class="fh"><span>'+f.l+'</span><span class="fv">'+(set?f.v[v-1]:"à noter ce soir")+'</span></div>'+
+      '<input type="range" min="1" max="5" step="1" value="'+(set?v:3)+'" class="'+(set?"":"unset")+'" aria-label="'+f.l+'"></div>');
+    var inp=row.querySelector("input");
+    inp.addEventListener("input",function(){ var st=dayState(cur); st.r[f.k]=+this.value; this.classList.remove("unset");
+      row.querySelector(".fv").textContent=f.v[+this.value-1]; save(); });
+    host.appendChild(row);
+  });
+}
+function renderJourC9(){
+  var d10=cur===10;
+  document.getElementById("jourBody").classList.toggle("hide",d10);
+  document.getElementById("dayExtras").classList.toggle("hide",d10);
+  document.getElementById("j10Body").classList.toggle("hide",!d10);
+  document.getElementById("msg").textContent=DAYMSG[cur]||"";
+  renderAloe();
+  if(d10){ renderJ10(); return; }
+
+  var host=document.getElementById("jourBody"); host.innerHTML="";
+  var t=el('<div class="secttl">Bouger</div>'); host.appendChild(t);
+  var c1=el('<div class="card"></div>');
+  MOUV.forEach(function(m,i){
+    var r=el('<div class="row"><div class="txt"><div class="lbl">'+m.l+'</div>'+(m.s?'<div class="sub">'+m.s+'</div>':'')+
+      (i===0&&ACT[cur]?'<div class="idea">'+ACT[cur]+'</div>':'')+'</div></div>');
+    r.insertBefore(boxBtn(m.k,m.l),r.firstChild); c1.appendChild(r);
+  });
+  host.appendChild(c1);
+
+  host.appendChild(el('<div class="secttl">Hydratation</div>'));
+  var c0=el('<div class="card"><div class="water"></div><div class="wlab" id="wlab"></div></div>');
+  var w=c0.querySelector(".water");
+  for(var k=1;k<=8;k++){ (function(k){
+    var g=el('<button class="glass" aria-label="'+k+' verres"><span class="lvl"></span></button>');
+    g.addEventListener("click",function(){ var st=dayState(cur); setWater(cur, st.w===k?k-1:k); });
+    w.appendChild(g);
+  })(k); }
+  host.appendChild(c0);
+
+  host.appendChild(el('<div class="secttl">'+(cur<=2?"Journée de reset — aucun repas solide":"Prises et repas")+'</div>'));
+  if(cur>=3&&cur<=8){
+    var midi=!!menuOf(cur).dej;
+    var sw=el('<div class="seg" style="margin-bottom:10px"><button data-m="1" aria-pressed="'+midi+'">Plat le midi · shake le soir</button><button data-m="0" aria-pressed="'+(!midi)+'">Shake le midi · plat le soir</button></div>');
+    sw.querySelectorAll("button").forEach(function(x){ x.addEventListener("click",function(){
+      var wantMidi=x.getAttribute("data-m")==="1"; if(wantMidi===!!menuOf(cur).dej) return;
+      state.swap[cur]=!state.swap[cur]; save(); renderJour(); paintNext(); renderMenus(); }); });
+    host.appendChild(sw);
+  }
+  var c2=el('<div class="card"></div>');
+  plan(cur).forEach(function(b){
+    var r=el('<div class="row"><div class="hh">'+b.h+'</div><div class="txt"><div class="lbl">'+b.l+'</div><div class="sub">'+b.s.map(function(x){ return fibTxt(aloeTxt(x)); }).join("<br>")+'</div></div></div>');
+    r.appendChild(boxBtn(b.k,b.l)); c2.appendChild(r);
+    if(b.w) c2.appendChild(el('<div class="warn">'+b.w+'</div>'));
+  });
+  host.appendChild(c2);
+  if(NOTES_MENU[cur]&&!(cur===6&&state.swap[6])) host.appendChild(el('<div class="warn" style="border:1px solid var(--line);border-radius:14px;margin-bottom:12px">'+NOTES_MENU[cur]+'</div>'));
+  var hb=el('<button class="hunger">J\'ai faim</button>'); hb.addEventListener("click",openHunger); host.appendChild(hb);
+
+  paintWater(); renderFeel();
+  document.getElementById("note").value=dayState(cur).n||"";
+}
+
+/* ---------- j'ai faim ---------- */
+function openHunger(){
+  var n=cur, s=dayState(n), h=new Date().getHours();
+  var tip = h<12 ? "Le matin, la faim est souvent de la soif. Un grand verre d'eau, puis attends 10 minutes."
+    : (h<18 ? "Fringale d'après-midi : pioche d'abord dans les légumes, à volonté ou à portion."
+    : (restricted() ? "En soirée, reste sur les légumes à volonté ou un grand verre d'eau." : "En soirée, c'est le bon moment pour ta portion de fruit si elle n'est pas prise."));
+  var rs=restricted(), an=aloe();
+  var frLeft=1-s.fr, lgLeft=2-s.lg;
+  document.getElementById("sheetc").innerHTML=
+    '<h2>Coup de faim</h2><div class="tip">'+tip+'</div>'+
+    '<div class="hrow"><div><div class="lbl">Un grand verre d\'eau</div><div class="sub">'+s.w+' sur 8 aujourd\'hui.</div></div><button class="pill" data-a="w">+1 verre</button></div>'+
+    (rs ? '<div class="hrow"><div><div class="lbl">Fruit ou fruits à coque</div><div class="sub">Exclu avec ton Forever '+an.n+' : sa pulpe apporte déjà ce sucre.</div></div><button class="pill" disabled>Exclu</button></div>' :
+    '<div class="hrow"><div><div class="lbl">Fruit ou fruits à coque</div><div class="sub">'+(frLeft>0?"1 portion dispo : pomme, poire, orange, ½ tasse de fruits rouges, ou une petite poignée d'amandes.":"Portion du jour déjà prise.")+'</div></div><button class="pill" data-a="fr"'+(frLeft>0?'':' disabled')+'>'+(frLeft>0?"Je la prends":"Pris ✓")+'</button></div>')+
+    '<div class="hrow"><div><div class="lbl">Légumes à portion</div><div class="sub">'+(lgLeft>0?lgLeft+" portion"+(lgLeft>1?"s":"")+" dispo : carottes, tomates, chou-fleur, brocoli, courgettes.":"Tes 2 portions sont prises.")+'</div></div><button class="pill" data-a="lg"'+(lgLeft>0?'':' disabled')+'>'+(lgLeft>0?"J'en prends une":"Pris ✓")+'</button></div>'+
+    '<div class="hrow"><div><div class="lbl">À volonté, sans compter</div><div class="sub">Concombre, céleri, salade, endive, roquette, épinards, haricots verts. Crus ou vapeur, sans matière grasse.</div></div></div>'+
+    '<button class="close" data-a="x">Fermer</button>';
+  var sh=document.getElementById("sheet"); sh.classList.remove("hide");
+  sh.querySelectorAll("[data-a]").forEach(function(b){ b.addEventListener("click",function(){
+    var a=b.getAttribute("data-a"), st=dayState(n);
+    if(a==="x"){ sh.classList.add("hide"); return; }
+    if(a==="w"){ setWater(n,st.w+1); }
+    if(a==="fr"){ st.fr=Math.min(1,st.fr+1); save(); }
+    if(a==="lg"){ st.lg=Math.min(2,st.lg+1); save(); }
+    if(document.getElementById("ov").classList.contains("hide")) openHunger(); else sh.classList.add("hide");
+  }); });
+}
+
+/* ---------- écran J10 ---------- */
+function num(v){ if(v===undefined||v===null||v==="") return null; var x=parseFloat(String(v).replace(",",".")); return isNaN(x)?null:x; }
+function fmt(x){ return (Math.round(x*10)/10).toString().replace(".",","); }
+function paintCmp(row,k,unit){
+  var v1=num(state.mes[k+"_1"]), v10=num(state.mes[k+"_10"]);
+  var mx=Math.max(v1||0,v10||0), lo=mx*0.85;
+  function wd(v){ return v===null||mx===0 ? 0 : Math.max(6,Math.min(100,(v-lo)/(mx-lo)*100)); }
+  row.querySelector(".b1").style.width=wd(v1)+"%";
+  row.querySelector(".b10").style.width=wd(v10)+"%";
+  var d=row.querySelector(".cd");
+  if(v1===null){ d.textContent="J1 manquant"; d.className="cd"; }
+  else if(v10===null){ d.textContent="à mesurer"; d.className="cd"; }
+  else { var df=v10-v1; d.textContent=(df<0?"−":df>0?"+":"±")+fmt(Math.abs(df))+" "+unit; d.className="cd"+(df<0?" good":""); }
+}
+function renderJ10(){
+  var host=document.getElementById("j10Body"); host.innerHTML="";
+  host.appendChild(el('<div class="secttl">Tes mesures, jour 1 → jour 10</div>'));
+  var cm=el('<div class="card"></div>');
+  MESURES.forEach(function(x){
+    var unit=x.k==="poids"?"kg":"cm", v1=state.mes[x.k+"_1"];
+    var row=el('<div class="cmp"><div class="ch"><span class="cn">'+x.l.replace(/ \(.*\)/,"")+'</span><span class="cd"></span></div>'+
+      '<div class="cr"><span class="ct">J1</span><div class="cb"><i class="b1"></i></div><span class="cv">'+(v1?esc(String(v1).replace(".",",")):"—")+'</span></div>'+
+      '<div class="cr"><span class="ct">J10</span><div class="cb"><i class="b10"></i></div><input class="ci" type="number" inputmode="decimal" step="0.1" placeholder="—" aria-label="'+x.l+' jour 10"></div></div>');
+    var inp=row.querySelector("input"); inp.value=state.mes[x.k+"_10"]||"";
+    inp.addEventListener("input",function(){ state.mes[x.k+"_10"]=this.value; save(); paintCmp(row,x.k,unit); });
+    cm.appendChild(row); paintCmp(row,x.k,unit);
+  });
+  host.appendChild(cm);
+
+  host.appendChild(el('<div class="secttl">Ton ressenti sur 9 jours</div>'));
+  var g='<div class="fgrid"><div></div>';
+  for(var n=1;n<=9;n++) g+='<div class="hd">'+n+'</div>';
+  var col={e:"var(--vert)",f:"var(--ocre)",s:"var(--bleu)"};
+  FEEL.forEach(function(f){ g+='<div>'+f.l+'</div>';
+    for(var n=1;n<=9;n++){ var v=dayState(n).r[f.k];
+      g+= typeof v==="number" ? '<div class="c" style="background:'+col[f.k]+';opacity:'+(0.15+0.17*v).toFixed(2)+';border-color:transparent" title="'+f.v[v-1]+'"></div>' : '<div class="c"></div>'; } });
+  g+='</div><div class="wlab">Plus la case est foncée, plus la valeur est haute. La faim baisse souvent à partir du jour 3.</div>';
+  host.appendChild(el('<div class="card">'+g+'</div>'));
+
+  var cb=el('<button class="hunger" style="margin-top:14px">Envoyer mon bilan à mon coach</button>'); cb.addEventListener("click",openCoach); host.appendChild(cb);
+  host.appendChild(el('<div class="secttl">Badges</div>'));
+  host.appendChild(el('<div class="card"><div class="badges" id="badges10"></div></div>'));
+  renderBadges();
+
+  var notes=[]; for(var n2=1;n2<=9;n2++){ var t=(dayState(n2).n||"").trim(); if(t) notes.push('<div class="row"><div class="hh">J'+n2+'</div><div class="txt sub" style="margin:0;white-space:pre-line">'+esc(t)+'</div></div>'); }
+  if(notes.length){ host.appendChild(el('<div class="secttl">Ton carnet</div>')); host.appendChild(el('<div class="card">'+notes.join("")+'</div>')); }
+
+  host.appendChild(el('<div class="secttl">Ton prochain C9</div>'));
+  var nx=el('<div class="card"><div style="padding:14px"><div class="countdown" id="cdn"></div><div class="sub" style="margin:2px 0 10px">Le livret conseille de le refaire environ six mois plus tard.</div><input type="date" id="nextDate"></div></div>');
+  host.appendChild(nx);
+  var di=nx.querySelector("#nextDate"); di.value=state.next||defNext();
+  function cd(){ var t0=new Date(); t0.setHours(0,0,0,0); var p=(di.value||"").split("-");
+    if(p.length!==3){ nx.querySelector("#cdn").textContent="—"; return; }
+    var d=new Date(+p[0],+p[1]-1,+p[2]); var n=Math.round((d-t0)/86400000);
+    nx.querySelector("#cdn").textContent= n>0 ? "dans "+n+" jours" : (n===0?"aujourd'hui":"date passée"); }
+  di.addEventListener("input",function(){ state.next=this.value; save(); cd(); }); cd();
+}
+
+/* ---------- bilan coach ---------- */
+function bilanTextC9(o){
+  var L=[], td=Math.max(1,Math.min(programDay(),10)), a=aloe(), f=fiber(), x=extra();
+  L.push("Bilan C9 · "+rangeTxt()+" "+dateOf(9).getFullYear());
+  L.push("Aujourd'hui : "+(td>=10?"programme terminé":"jour "+td));
+  L.push("Aloe : "+(a?a.n:"—")+" · Fiber : "+(f?f.n:"—")+" · +200 kcal : "+(x?EXTRAS[x].n.toLowerCase():"—"));
+  var done=0; for(var n=1;n<=9;n++) if(isDone(n)) done++;
+  L.push("Jours bouclés : "+done+"/9 · série en cours : "+streak());
+  L.push(""); L.push("Détail par jour");
+  for(var n2=1;n2<=Math.min(td,9);n2++){ var s=dayState(n2), r=s.r, parts=[];
+    parts.push("prises "+mealsDone(n2)+"/"+totalMeals(n2)); parts.push("eau "+s.w+"/8"); parts.push("bouger "+movesDone(n2)+"/3");
+    if(typeof r.e==="number") parts.push("énergie "+r.e+"/5"); if(typeof r.f==="number") parts.push("faim "+r.f+"/5"); if(typeof r.s==="number") parts.push("sommeil "+r.s+"/5");
+    L.push("J"+n2+" ("+shortDate(dateOf(n2))+") : "+parts.join(", ")+(isDone(n2)?" ✓":"")); }
+  if(o.mes){ L.push(""); L.push("Mesures J1 → J10");
+    MESURES.forEach(function(m){ var u=m.k==="poids"?"kg":"cm", v1=num(state.mes[m.k+"_1"]), v10=num(state.mes[m.k+"_10"]);
+      L.push(m.l.replace(/ \(.*\)/,"")+" : "+(v1===null?"—":fmt(v1))+" → "+(v10===null?"—":fmt(v10))+" "+u+(v1!==null&&v10!==null?" ("+(v10-v1<0?"−":"+")+fmt(Math.abs(v10-v1))+")":"")); }); }
+  if(o.notes){ var nt=[]; for(var n3=1;n3<=9;n3++){ var t=(dayState(n3).n||"").trim(); if(t) nt.push("J"+n3+" : "+t.replace(/\s*\n\s*/g," · ")); }
+    if(nt.length){ L.push(""); L.push("Notes"); nt.forEach(function(z){ L.push(z); }); } }
+  var bs=BADGES.filter(function(b){ var p=b.p(); return p[0]>=p[1]; }).map(function(b){ return b.n; });
+  L.push(""); L.push("Badges : "+(bs.length?bs.join(", "):"aucun pour l'instant"));
+  return L.join("\n");
+}
+function openCoach(){
+  var o={mes:true,notes:true};
+  var sc=document.getElementById("sheetc");
+  sc.innerHTML='<h2>Bilan pour ton coach</h2><div class="sub" style="margin:6px 0 4px">Tu choisis ce que tu envoies. Rien ne part sans toi.</div>'+
+    '<label class="tog">Inclure mes mesures<input type="checkbox" id="oMes" checked></label>'+
+    '<label class="tog">Inclure mes notes du jour<input type="checkbox" id="oNotes" checked></label>'+
+    '<textarea id="bilan" readonly></textarea>'+
+    '<div class="acts">'+(navigator.share?'<button class="go" id="bShare">Partager</button>':'')+'<button class="go" id="bCopy">Copier</button></div>'+
+    '<div class="sub" id="bMsg" style="margin-top:8px"></div><button class="close" id="bClose">Fermer</button>';
+  var ta=sc.querySelector("#bilan"); function upd(){ ta.value=bilanText(o); }
+  sc.querySelector("#oMes").addEventListener("change",function(){ o.mes=this.checked; upd(); });
+  sc.querySelector("#oNotes").addEventListener("change",function(){ o.notes=this.checked; upd(); });
+  var msg=sc.querySelector("#bMsg");
+  var sh=sc.querySelector("#bShare"); if(sh) sh.addEventListener("click",function(){ navigator.share({title:"Bilan C9",text:ta.value}).catch(function(){}); });
+  sc.querySelector("#bCopy").addEventListener("click",function(){
+    function fb(){ ta.removeAttribute("readonly"); ta.focus(); ta.select(); var ok=false; try{ ok=document.execCommand("copy"); }catch(e){} ta.setAttribute("readonly","");
+      msg.textContent= ok?"Copié. Colle-le dans un message à ton coach.":"Sélectionne le texte et copie-le manuellement."; }
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(function(){ msg.textContent="Copié. Colle-le dans un message à ton coach."; },fb); else fb(); });
+  sc.querySelector("#bClose").addEventListener("click",function(){ document.getElementById("sheet").classList.add("hide"); });
+  upd(); document.getElementById("sheet").classList.remove("hide");
+}
+document.getElementById("coachBtn").addEventListener("click",openCoach);
+
+/* ---------- recommencer ---------- */
+function doResetC9(){
+  if(writing){ setTimeout(doReset,300); return; }
+  clearTimeout(flushTimer);
+  state={d:{},mes:{},obj:"",mesnote:"",k:{},cel:{},swap:{}}; norm();
+  var fresh=clone(state);
+  function done(){ base=fresh; docExists=true; writing=false; persistLocal(); syncState="ok"; paintSync(); }
+  persistLocal();
+  if(docRef&&ready){ writing=true; syncState="wait"; paintSync();
+    docRef.set(fresh).then(done,function(){ writing=false; syncState="local"; paintSync(); }); }
+  document.getElementById("sheet").classList.add("hide");
+  view="jour";
+  document.querySelectorAll("nav button").forEach(function(x){ x.setAttribute("aria-selected",String(x.getAttribute("data-v")==="jour")); });
+  ["jour","menus","courses","encas","reperes"].forEach(function(v){ document.getElementById("v-"+v).classList.toggle("hide",v!=="jour"); });
+  render(); window.scrollTo(0,0);
+}
+function openResetC9(){
+  var sc=document.getElementById("sheetc");
+  sc.innerHTML='<h2>Recommencer mon suivi ?</h2>'+
+    '<div class="tip">Tout sera effacé, sur tous tes appareils : cases cochées, eau, ressenti, notes, mesures, objectif, courses et choix de produits. Tu repartiras de la date de départ.</div>'+
+    '<div class="sub">Pour garder une trace de ce C9, envoie-toi ton bilan avant.</div>'+
+    '<button class="go" id="rBilan" style="width:100%;margin-top:12px">Envoyer mon bilan d\'abord</button>'+
+    '<button class="danger fill" id="rGo">Tout effacer et recommencer</button>'+
+    '<button class="close" id="rNo">Annuler</button>';
+  sc.querySelector("#rBilan").addEventListener("click",openCoach);
+  sc.querySelector("#rGo").addEventListener("click",doReset);
+  sc.querySelector("#rNo").addEventListener("click",function(){ document.getElementById("sheet").classList.add("hide"); });
+  document.getElementById("sheet").classList.remove("hide");
+}
+document.getElementById("resetBtn").addEventListener("click",openReset);
+
+/* ---------- sauvegarde / restauration ---------- */
+document.getElementById("expBtn").addEventListener("click",function(){
+  var payload=JSON.stringify({app:"suivi-c9",v:3,exported:new Date().toISOString(),state:state});
+  var name="suivi-c9-"+isoD(new Date())+".json", file=null, msg=document.getElementById("dataMsg");
+  try{ file=new File([payload],name,{type:"application/json"}); }catch(e){}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:"Sauvegarde Suivi C9"}).then(function(){ msg.textContent="Sauvegarde partagée."; },function(){}); return; }
+  var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([payload],{type:"application/json"})); a.download=name;
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+  msg.textContent="Fichier "+name+" enregistré.";
+});
+document.getElementById("impBtn").addEventListener("click",function(){ document.getElementById("impFile").click(); });
+document.getElementById("impFile").addEventListener("change",function(){
+  var f=this.files&&this.files[0], msg=document.getElementById("dataMsg"), inp=this; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{ var o=JSON.parse(rd.result), st= o&&o.state ? o.state : o;
+      if(!st||typeof st!=="object"||!st.d) throw new Error("format");
+      if(!window.confirm("Remplacer les données de cet appareil par cette sauvegarde ?")){ inp.value=""; return; }
+      state={d:{},mes:{},obj:"",mesnote:"",k:{},cel:{},swap:{}}; state=Object.assign(state,st); lastStart=undefined; norm();
+      base=clone(state); persistLocal(); render(); msg.textContent="Données restaurées.";
+    }catch(e){ msg.textContent="Ce fichier n'est pas une sauvegarde du Suivi C9."; }
+    inp.value="";
+  };
+  rd.readAsText(f);
+});
+
+/* ---------- autres onglets ---------- */
+function renderMenus(){
+  var host=document.getElementById("menuList"); host.innerHTML="";
+  for(var n=3;n<=9;n++){ ["dej","din"].forEach(function(slot){
+    var r= slot==="dej"?repasDej(n):repasDin(n); if(!r) return;
+    var d=document.createElement("details");
+    d.innerHTML='<summary><span class="j">J'+n+' · '+(slot==="dej"?"midi":"soir")+'</span><span class="n">'+r.n+'</span><span class="k">'+r.k+(extra()==="plat"&&extraSlot(n)===slot?' + 200':'')+' kcal</span></summary>'+
+      '<div class="detail"><span class="tag">'+shortDate(dateOf(n))+'</span><ul><li>'+r.i.join("</li><li>")+'</li></ul>'+(extra()==="plat"&&extraSlot(n)===slot&&PLUS200[menuOf(n)[slot]]?'<p><b style="color:var(--violet)">Tes +200 kcal</b> : '+PLUS200[menuOf(n)[slot]]+'</p>':'')+'<p>'+r.p+'</p></div>';
+    host.appendChild(d);
+  }); }
+}
+function itemRow(it){
+  var on=!!state.k[it.id];
+  var node=el('<div class="row'+(on?' got':'')+'"><button class="box" role="checkbox" aria-checked="'+on+'" aria-label="'+esc(it.n)+'">'+CHECK+'</button>'+
+    '<div class="txt"><div class="lbl">'+it.n+(it.q?'<span class="qty">'+it.q+'</span>':'')+'</div>'+(it.d?'<div class="sub">'+it.d+'</div>':'')+'</div></div>');
+  node.querySelector(".box").addEventListener("click",function(){ state.k[it.id]=!state.k[it.id];
+    this.setAttribute("aria-checked",String(!!state.k[it.id])); node.classList.toggle("got",!!state.k[it.id]); save(); });
+  return node;
+}
+function renderCourses(){
+  var f=document.getElementById("forever"); f.innerHTML="";
+  FOREVER.forEach(function(it){ var x=it;
+    if(it.id==="f-aloe"&&aloe()) x={id:it.id,n:"Forever "+aloe().n,q:it.q,d:it.d};
+    if(it.id==="f-fiber"&&fiber()) x={id:it.id,n:fiber().n,q:fiber().q,d:it.d};
+    if(it.id==="f-lite"&&extra()==="shake") x={id:it.id,n:x.n,q:"22 doses",d:it.d+" Plus 7 shakes bonus du J3 au J9."};
+    f.appendChild(itemRow(x)); });
+  f.appendChild(el('<div class="warn">'+(extra()==="shake"?"Le kit contient 15 doses de Lite Ultra : avec tes shakes bonus, il t'en faut <b>7 de plus</b>, soit un second sachet. Les autres produits du kit suffisent pile.":extra()==="plat"?"Le kit contient exactement ces quantités. Tes 200 kcal passant par l'assiette, rien de plus à prévoir côté Forever.":FOREVER_NOTE)+'</div>'));
+  var host=document.getElementById("courses"); host.innerHTML="";
+  COURSES.forEach(function(g){
+    host.appendChild(el('<div class="grp">'+g.t+'</div>'));
+    var c=el('<div class="card"></div>'); var drop=false;
+    g.items.forEach(function(it){ if(it.id==="c-fruits"&&restricted()){ drop=true; return; } var y=it;
+      if(it.id==="c-lait"&&extra()==="shake") y={id:it.id,n:it.n,q:"≈ 5,3 L",d:"22 shakes de 240 ml, à moins de les faire à l'eau."};
+      if(extra()==="plat"&&EXTRA_Q[it.id]) y={id:it.id,n:it.n,q:it.q+" "+EXTRA_Q[it.id],d:(it.d?it.d+" ":"")+"Le complément couvre tes +200 kcal."};
+      c.appendChild(itemRow(y)); });
+    if(drop) c.appendChild(el('<div class="warn">Fruits et fruits à coque retirés de la liste : exclus avec ton Forever '+aloe().n+'.</div>'));
+    if(g.note) c.appendChild(el('<div class="warn">'+g.note+'</div>'));
+    host.appendChild(c);
+  });
+}
+function renderEncas(){
+  var host=document.getElementById("encas"); host.innerHTML="";
+  ENCAS.forEach(function(sec,idx){
+    var ex= idx===0 && restricted();
+    var h='<h3>'+sec.t+'</h3><p class="q">'+sec.q+'</p>';
+    if(idx===0) h+= ex ? '<div class="ban"><b>Exclu pour toi</b> : tu suis le C9 avec le Forever '+aloe().n+'.</div>'
+                       : '<div class="ban">'+(aloe()?"Autorisé avec l'Aloe Vera Gel.":"<b>Attention</b> : exclu si tu utilises l'Aloe Pêche ou le Berry Nectar.")+'</div>';
+    sec.g.forEach(function(g){ h+='<div class="chips">'+(g[0]?'<span class="chip" style="border-color:var(--violet);color:var(--violet)">'+g[0]+'</span>':'')+
+      g[1].split(", ").map(function(x){ return '<span class="chip">'+x+'</span>'; }).join("")+'</div>'; });
+    host.appendChild(el('<div'+(ex?' class="excl"':'')+'>'+h+'</div>'));
+  });
+}
+function renderReperesC9(){
+  renderBadges();
+  var host=document.getElementById("regles"); host.innerHTML="";
+  REGLES.forEach(function(r){ host.appendChild(el('<div class="row"><div class="txt"><div class="lbl">'+r.l+'</div><div class="sub">'+r.s+'</div></div></div>')); });
+  var pr=document.getElementById("proto"); pr.innerHTML="";
+  PROTO.forEach(function(r){ pr.appendChild(el('<div class="row"><div class="txt"><div class="lbl">'+r.l+'</div><div class="sub">'+r.s+'</div></div></div>')); });
+  var m=document.getElementById("mesures"); m.innerHTML="";
+  MESURES.forEach(function(x){
+    var row=el('<div class="mes"><div class="n">'+x.l+'<div class="sub" style="font-size:11.5px;line-height:1.35">'+x.h+'</div></div>'+
+      '<input type="number" inputmode="decimal" step="0.1" data-k="'+x.k+'_1"><input type="number" inputmode="decimal" step="0.1" data-k="'+x.k+'_10"></div>');
+    m.appendChild(row);
+  });
+  m.querySelectorAll("input").forEach(function(inp){ var k=inp.getAttribute("data-k"); inp.value=state.mes[k]||"";
+    inp.addEventListener("input",function(){ state.mes[k]=this.value; save(); }); });
+  document.getElementById("interdits").innerHTML=INTERDITS.map(function(x){ return '<span class="chip">'+x+'</span>'; }).join("");
+  document.getElementById("objectif").value=state.obj||"";
+  document.getElementById("mesnote").value=state.mesnote||"";
+}
+/* ================= v3 : après le C9 (transition, entretien, historique) ================= */
+var FAM=[
+ {a:11,b:13,k:"lait",n:"Produits laitiers",ex:"Yaourt nature, fromage blanc, un peu de fromage.",m:"Réintroduction des produits laitiers. Commence petit : un yaourt nature ou un peu de fromage blanc par jour."},
+ {a:14,b:16,k:"cere",n:"Céréales complètes",ex:"Pain complet, flocons d'avoine, riz ou pâtes complètes.",m:"Place aux céréales complètes. Une portion à un repas, pas à tous, pour voir comment tu réagis."},
+ {a:17,b:19,k:"cafe",n:"Café et thé",ex:"Une à deux tasses, plutôt le matin.",m:"Café et thé reviennent. Une ou deux tasses le matin, pour ne pas gêner ton sommeil."},
+ {a:20,b:24,k:"viande",n:"Viandes rouges maigres",ex:"Bœuf maigre, filet de porc. Ensuite, le reste à ton rythme.",m:"Viandes rouges maigres, puis le reste à ton rythme. Alcool, sodas et produits transformés ne sont pas des objectifs."}
+];
+var KEEP={aloe:"Pulpe d'Aloe, le matin",fiber:"Forever Fiber en collation",leg:"Légumes à volonté aux repas",eau:"Un grand verre d'eau avant chaque repas",soir:"Pas de grignotage après le dîner"};
+var CTX={faim:"Faim réelle",ennui:"Ennui",stress:"Stress",fatigue:"Fatigue",social:"Social",habitude:"Habitude"};
+var TPLAN=[{k:"tpdj",h:"7:30",l:"Petit-déjeuner",s:"Une protéine, et un fruit ou un shake."},
+           {k:"tdej",h:"12:30",l:"Déjeuner",s:"La moitié de l'assiette en légumes."},
+           {k:"tdin",h:"19:00",l:"Dîner",s:"Plus léger que le déjeuner."}];
+var DIG={ok:"ok",moyen:"moyen",mal:"mal"}, FAIM={stable:"stable",hausse:"en hausse"};
+function famOf(n){ for(var i=0;i<FAM.length;i++) if(n>=FAM[i].a&&n<=FAM[i].b) return FAM[i]; return null; }
+function phaseOf(n){ return n<=9?"c9":(n===10?"bilan":(n<=24?"tr":"en")); }
+function tKeys(n){ var k=["tpdj","tdej","tdin"]; Object.keys(KEEP).forEach(function(h){ if(state.tr.keep[h]) k.push("h_"+h); }); return k; }
+function movesKeys(n){ return n<=9?MOVES:["bouger"]; }
+function trDone(n){ return mealsDone(n)>=totalMeals(n)&&dayState(n).w>=8&&movesDone(n)>=1; }
+function isoD(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parseD(s){ var p=String(s).split("-"); return new Date(+p[0],+p[1]-1,+(p[2]||1)); }
+function today0(){ var t=new Date(); t.setHours(0,0,0,0); return t; }
+function weekKey(d){ var x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return isoD(x); }
+function monthKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function weekNo(){ return Math.max(1,Math.floor((today0()-dateOf(25))/(7*86400000))+1); }
+function rangeN(a,b){ var x=dateOf(a), y=dateOf(b);
+  return x.getMonth()===y.getMonth() ? x.getDate()+" → "+y.getDate()+" "+MOIS[y.getMonth()] : x.getDate()+" "+MOIS[x.getMonth()]+" → "+y.getDate()+" "+MOIS[y.getMonth()]; }
+
+/* ---------- en-tête, jours, bandeau par phase ---------- */
+function setLegendLabel(t){ var e=document.getElementById("lgt1"); if(e) e.textContent=t; }
+function paintHeader(){
+  var ph=phaseOf(cur), rail=document.getElementById("rail"), miles=document.querySelector(".miles"),
+      rings=document.getElementById("rings"), leg=document.getElementById("legend");
+  if(ph==="c9"||ph==="bilan"){
+    rail.classList.remove("hide"); miles.classList.remove("hide"); miles.style.gridTemplateColumns="";
+    miles.innerHTML='<span style="grid-column:2">Reset</span><span style="grid-column:5">Mi-parcours</span><span style="grid-column:9">Arrivée</span>';
+    setLegendLabel("Prises"); paintHeaderC9(); return;
+  }
+  if(ph==="tr"){
+    rings.classList.remove("hide"); leg.classList.remove("hide"); rail.classList.remove("hide"); miles.classList.remove("hide");
+    var s=dayState(cur), m=mealsDone(cur), t=totalMeals(cur), mv=movesDone(cur);
+    document.getElementById("daynum").textContent=cur;
+    document.getElementById("dayDate").textContent=longDate(dateOf(cur));
+    setRing("rg1",m/t); setRing("rg2",s.w/8); setRing("rg3",mv);
+    setLegendLabel("Repas");
+    document.getElementById("lg1").textContent=m+"/"+t;
+    document.getElementById("lg2").textContent=s.w+"/8";
+    document.getElementById("lg3").textContent=mv+"/1";
+    document.getElementById("dayState").textContent="Transition · jour "+(cur-10)+"/14"+(trDone(cur)?" · bouclé ✓":"");
+    document.getElementById("kicker").textContent="Transition · "+rangeN(11,24);
+    rail.innerHTML="";
+    for(var i=11;i<=24;i++){ var sg=document.createElement("i"), cl=[];
+      if(i===11||i===14||i===17||i===20) cl.push("m");
+      if(trDone(i)) cl.push("on"); else if(i===cur) cl.push("now");
+      sg.className=cl.join(" "); rail.appendChild(sg); }
+    miles.style.gridTemplateColumns="repeat(14,1fr)";
+    miles.innerHTML='<span style="grid-column:1;justify-self:start">Laitages</span><span style="grid-column:4;justify-self:start">Céréales</span><span style="grid-column:7;justify-self:start">Café</span><span style="grid-column:10;justify-self:start">Viandes</span>';
+    return;
+  }
+  rings.classList.add("hide"); leg.classList.add("hide"); rail.classList.add("hide"); miles.classList.add("hide");
+  var wk=weekKey(new Date()), w=state.en.w[wk];
+  document.getElementById("daynum").textContent=weekNo();
+  document.getElementById("dayDate").textContent="Entretien · semaine "+weekNo();
+  document.getElementById("dayState").textContent= num(w)!==null ? "Pesée de la semaine faite ✓" : "Pesée de la semaine à faire";
+  document.getElementById("kicker").textContent="Entretien · depuis le "+dateOf(25).getDate()+" "+MOIS[dateOf(25).getMonth()];
+}
+function paintPhaseSeg(){
+  var host=document.getElementById("phaseSeg"); if(!host) return; host.innerHTML="";
+  var ph=phaseOf(cur), g= ph==="bilan"?"c9":ph, live=phaseOf(Math.max(1,programDay()>24?25:programDay())); if(live==="bilan") live="c9";
+  [["c9","C9"],["tr","Transition"],["en","Entretien"]].forEach(function(p){
+    var b=el('<button aria-pressed="'+(g===p[0])+'">'+p[1]+(live===p[0]&&state.start?" •":"")+'</button>');
+    b.addEventListener("click",function(){ var pd=programDay();
+      if(p[0]==="c9") cur= pd>=1&&pd<=10?pd:(pd<1?1:10);
+      else if(p[0]==="tr") cur= pd>=11&&pd<=24?pd:11;
+      else cur=25;
+      renderJour(); paintHeader(); paintDays(); paintNext(); window.scrollTo(0,0); });
+    host.appendChild(b); });
+}
+function paintDays(){
+  var ph=phaseOf(cur), box=document.getElementById("days");
+  paintPhaseSeg();
+  if(ph==="c9"||ph==="bilan"){ box.classList.remove("hide"); paintDaysC9(); return; }
+  if(ph==="en"){ box.classList.add("hide"); box.innerHTML=""; return; }
+  box.classList.remove("hide"); box.innerHTML="";
+  for(var i=11;i<=24;i++){ (function(n){
+    var b=document.createElement("button");
+    b.className="day"+(trDone(n)?" done":"");
+    b.setAttribute("aria-pressed",String(n===cur));
+    b.innerHTML="J"+n+'<span class="dd">'+shortDate(dateOf(n))+"</span>";
+    b.addEventListener("click",function(){ cur=n; renderJour(); paintHeader(); paintDays(); paintNext(); });
+    box.appendChild(b);
+  })(i); }
+}
+function paintNext(){
+  var ph=phaseOf(cur);
+  if(ph==="c9"||ph==="bilan"){ paintNextC9(); return; }
+  var box=document.getElementById("next"), td=programDay();
+  if(view!=="jour"||ph!=="tr"||cur!==td){ box.classList.add("hide"); return; }
+  box.classList.remove("hide");
+  var now=new Date(), nm=now.getHours()*60+now.getMinutes(), cr=state.tr.craving, s=dayState(td);
+  if(cr&&/^\d{1,2}:\d{2}$/.test(cr)&&nm>=toMin(cr)-30&&nm<=toMin(cr)+60){
+    box.innerHTML='<div class="nk">Ton heure de fringale · '+cr.replace(":"," h ")+'</div><div class="nl">Anticipe l\'envie</div>'+
+      '<div class="ns">Un grand verre d\'eau, puis des légumes à volonté'+(state.tr.keep.fiber?' ou ton Fiber':'')+'. Si l\'envie reste, note-la.</div>'+
+      '<button class="nb" id="nextSnack">Noter une envie</button>';
+    document.getElementById("nextSnack").addEventListener("click",openSnack); return;
+  }
+  var b=null, late=[];
+  TPLAN.forEach(function(x){ if(s.c[x.k]) return; if(toMin(x.h)>=nm-60){ if(!b) b=x; } else late.push(x); });
+  var lateHTML= late.length ? '<div class="late">'+late.map(function(x){ return '<button data-k="'+x.k+'">✓ '+x.l+' · '+x.h.replace(":"," h ")+'</button>'; }).join("")+'</div>' : "";
+  if(!b){
+    box.innerHTML= late.length
+      ? '<div class="nk">Plus de repas prévu aujourd\'hui</div><div class="nl">'+late.length+' repas à cocher ?</div>'+lateHTML
+      : '<div class="nk">Repas du jour</div><div class="nl">Tout est coché ✓</div><div class="ns">'+(s.w<8?"Il reste "+(8-s.w)+" verre"+(8-s.w>1?"s":"")+" d'eau.":"Eau comprise. Belle journée.")+'</div>';
+  } else {
+    var dm=toMin(b.h)-nm;
+    box.innerHTML='<div class="nk">Prochain repas · '+b.h.replace(":"," h ")+' · '+(dm>0?"dans "+fmtDur(dm):(dm>=-15?"maintenant":"prévu il y a "+fmtDur(-dm)))+'</div><div class="nl">'+b.l+'</div><div class="ns">'+b.s+'</div>'+
+      '<button class="nb" id="nextDone">C\'est fait</button>'+(late.length?'<div class="ns" style="margin-top:12px">Pas coché plus tôt :</div>'+lateHTML:"");
+    document.getElementById("nextDone").addEventListener("click",function(){ toggle(td,b.k,true); });
+  }
+  box.querySelectorAll(".late button").forEach(function(x){ x.addEventListener("click",function(){ toggle(td,x.getAttribute("data-k"),true); }); });
+}
+
+/* ---------- vue jour : aiguillage ---------- */
+function renderJour(){
+  var ph=phaseOf(cur), tr=document.getElementById("trBody"), en=document.getElementById("enBody"), jb=document.getElementById("jourBody");
+  if(ph==="c9"||ph==="bilan"){
+    tr.classList.add("hide"); en.classList.add("hide"); tr.innerHTML=""; en.innerHTML="";
+    renderJourC9(); if(ph==="bilan") addBilanExtras(); return;
+  }
+  jb.classList.add("hide"); jb.innerHTML=""; document.getElementById("j10Body").classList.add("hide");
+  renderAloe();
+  if(ph==="tr"){ en.classList.add("hide"); en.innerHTML=""; tr.classList.remove("hide"); document.getElementById("dayExtras").classList.remove("hide"); renderTransition(); }
+  else { tr.classList.add("hide"); tr.innerHTML=""; en.classList.remove("hide"); document.getElementById("dayExtras").classList.add("hide"); renderEntretien(); }
+}
+
+/* ---------- transition ---------- */
+function keepToggles(host,live){
+  Object.keys(KEEP).forEach(function(h){
+    var l=el('<label class="tog">'+KEEP[h]+'<input type="checkbox"'+(state.tr.keep[h]?" checked":"")+'></label>');
+    l.querySelector("input").addEventListener("change",function(){ state.tr.keep[h]=this.checked; if(live){ save(); renderJour(); paintHeader(); paintDays(); } });
+    host.appendChild(l); });
+}
+function waterCard(){
+  var c0=el('<div class="card"><div class="water"></div><div class="wlab" id="wlab"></div></div>'), w=c0.querySelector(".water");
+  for(var k=1;k<=8;k++){ (function(k){
+    var g=el('<button class="glass" aria-label="'+k+' verres"><span class="lvl"></span></button>');
+    g.addEventListener("click",function(){ var st=dayState(cur); setWater(cur, st.w===k?k-1:k); });
+    w.appendChild(g); })(k); }
+  return c0;
+}
+function segRow(label,opts,val,onPick){
+  var r=el('<div style="padding:10px 14px;border-top:1px solid var(--line)"><div class="sub" style="margin:0 0 6px">'+label+'</div><div class="seg"></div></div>'), sg=r.querySelector(".seg");
+  Object.keys(opts).forEach(function(k){ var b=el('<button aria-pressed="'+(val===k)+'">'+opts[k]+'</button>');
+    b.addEventListener("click",function(){ onPick(k); }); sg.appendChild(b); });
+  return r;
+}
+function renderTransition(){
+  var host=document.getElementById("trBody"); host.innerHTML=""; var n=cur, s=dayState(n), f=famOf(n);
+  if(!s.fam||typeof s.fam!=="object") s.fam={};
+  document.getElementById("msg").textContent= n===11 ? "Le C9 est terminé. Pendant deux semaines, tu réintroduis les aliments une famille à la fois pour voir comment ton corps réagit." : (f?f.m:"");
+  if(!state.tr.cfg){
+    var cf=el('<div class="card"><div style="padding:14px"><div class="lbl">Que gardes-tu du C9 ?</div><div class="sub">Les habitudes cochées deviennent des cases quotidiennes pendant la transition.</div><div class="kp" style="margin-top:6px"></div>'+
+      '<div class="lbl" style="margin-top:12px">À quelle heure as-tu le plus souvent faim ?</div><div class="sub">Le bandeau t\'aidera à anticiper ce moment. Laisse vide si tu n\'en as pas.</div>'+
+      '<input type="time" class="cr" style="margin-top:8px" value="'+(state.tr.craving||"")+'"><button class="go">Valider</button></div></div>');
+    keepToggles(cf.querySelector(".kp"),false);
+    cf.querySelector(".go").addEventListener("click",function(){ state.tr.craving=cf.querySelector(".cr").value||""; state.tr.cfg=true; save(); renderJour(); paintHeader(); paintDays(); paintNext(); });
+    host.appendChild(cf);
+  }
+  if(f){
+    host.appendChild(el('<div class="secttl">Famille du moment · J'+f.a+' à J'+f.b+'</div>'));
+    var fc=el('<div class="card"><div class="row"><div class="txt"><div class="lbl">'+f.n+'</div><div class="sub">'+f.ex+'</div></div></div></div>');
+    var tb=el('<button class="box" role="checkbox" aria-checked="'+(!!s.fam.t)+'" aria-label="Testé aujourd\'hui">'+CHECK+'</button>');
+    tb.addEventListener("click",function(){ s.fam.t=!s.fam.t; save(); renderTransition(); });
+    var tr0=el('<div class="row"><div class="txt"><div class="lbl">Testé aujourd\'hui</div></div></div>'); tr0.insertBefore(tb,tr0.firstChild); fc.appendChild(tr0);
+    if(s.fam.t){
+      fc.appendChild(segRow("Digestion",DIG,s.fam.dig,function(k){ s.fam.dig=k; save(); renderTransition(); }));
+      fc.appendChild(segRow("Faim dans les heures qui suivent",FAIM,s.fam.faim,function(k){ s.fam.faim=k; save(); renderTransition(); }));
+    }
+    host.appendChild(fc);
+  }
+  host.appendChild(el('<div class="secttl">Repas</div>'));
+  var c1=el('<div class="card"></div>');
+  TPLAN.forEach(function(b){ var r=el('<div class="row"><div class="hh">'+b.h+'</div><div class="txt"><div class="lbl">'+b.l+'</div><div class="sub">'+b.s+'</div></div></div>'); r.appendChild(boxBtn(b.k,b.l)); c1.appendChild(r); });
+  host.appendChild(c1);
+  var hk=Object.keys(KEEP).filter(function(h){ return state.tr.keep[h]; });
+  if(hk.length){
+    host.appendChild(el('<div class="secttl">Ce que tu gardes du C9</div>'));
+    var c2=el('<div class="card"></div>');
+    hk.forEach(function(h){ var r=el('<div class="row"><div class="txt"><div class="lbl">'+KEEP[h]+'</div></div></div>'); r.insertBefore(boxBtn("h_"+h,KEEP[h]),r.firstChild); c2.appendChild(r); });
+    host.appendChild(c2);
+  }
+  host.appendChild(el('<div class="secttl">Bouger et s\'hydrater</div>'));
+  var c3=el('<div class="card"></div>'), rb=el('<div class="row"><div class="txt"><div class="lbl">Bouger au moins 30 min</div><div class="sub">Marche, vélo, ce que tu aimes.</div></div></div>');
+  rb.insertBefore(boxBtn("bouger","Bouger"),rb.firstChild); c3.appendChild(rb); host.appendChild(c3);
+  host.appendChild(waterCard());
+  var sb=el('<button class="hunger">J\'ai une envie</button>'); sb.addEventListener("click",openSnack); host.appendChild(sb);
+  var todays=snackEntries().filter(function(e){ return isoD(new Date(e.t))===isoD(dateOf(n)); });
+  if(todays.length) host.appendChild(el('<div class="card">'+todays.map(snackRow).join("")+'</div>'));
+  paintWater(); renderFeel(); document.getElementById("note").value=dayState(n).n||"";
+}
+
+/* ---------- journal des envies ---------- */
+function snackEntries(){ return Object.keys(state.en.sn).map(function(k){ return state.en.sn[k]; }).filter(function(e){ return e&&e.t; }).sort(function(a,b){ return a.t<b.t?1:-1; }); }
+function snackRow(e){ var d=new Date(e.t);
+  return '<div class="row"><div class="hh" style="width:52px;flex-basis:52px">'+JOURS[d.getDay()].slice(0,3)+'. '+shortDate(d)+'<br>'+d.getHours()+' h '+String(d.getMinutes()).padStart(2,"0")+'</div>'+
+    '<div class="txt"><div class="lbl">'+(CTX[e.ctx]||"—")+' · envie '+e.e+'/5</div><div class="sub">'+(e.ate?"J'ai grignoté":"J'ai résisté ✓")+(e.n?' · '+esc(e.n):'')+'</div></div></div>'; }
+function snackPatterns(){
+  var lim=today0(); lim.setDate(lim.getDate()-30);
+  var es=snackEntries().filter(function(e){ return new Date(e.t)>=lim; });
+  if(es.length<3) return "Les tendances apparaîtront après quelques envies notées.";
+  var cx={}, sl={matin:0,"après-midi":0,soir:0}, res=0;
+  es.forEach(function(e){ cx[e.ctx]=(cx[e.ctx]||0)+1; var h=new Date(e.t).getHours(); sl[h<12?"matin":(h<18?"après-midi":"soir")]++; if(!e.ate) res++; });
+  var top=Object.keys(cx).sort(function(a,b){ return cx[b]-cx[a]; })[0], ts=Object.keys(sl).sort(function(a,b){ return sl[b]-sl[a]; })[0];
+  return "Sur 30 jours : "+es.length+" envies, "+res+" résistées. Contexte le plus fréquent : "+(CTX[top]||top).toLowerCase()+" · moment : "+ts+".";
+}
+function openSnack(){
+  var o={ctx:null,e:3,ate:null};
+  var sc=document.getElementById("sheetc");
+  function draw(){
+    sc.innerHTML='<h2>Une envie ?</h2><div class="tip">Bois un grand verre d\'eau et attends 10 minutes. Si la faim est réelle, pioche dans les légumes à volonté'+(state.tr.keep.fiber?' ou prends ton Fiber':'')+'.</div>'+
+      '<div class="lbl" style="margin-top:10px">Ce qui la déclenche</div><div class="seg ctx" style="margin-top:6px"></div>'+
+      '<div class="fr" style="margin-top:12px"><div class="fh"><span>Intensité</span><span class="ev">'+o.e+'/5</span></div><input type="range" min="1" max="5" step="1" value="'+o.e+'"></div>'+
+      '<div class="seg ate"></div><input type="text" class="sn" placeholder="Un mot sur le moment (facultatif)" style="margin-top:10px">'+
+      '<button class="go" id="snOk" style="width:100%"'+(o.ctx&&o.ate!==null?'':' disabled')+'>Enregistrer</button><button class="close" id="snNo">Annuler</button>';
+    Object.keys(CTX).forEach(function(k){ var b=el('<button aria-pressed="'+(o.ctx===k)+'">'+CTX[k]+'</button>'); b.addEventListener("click",function(){ o.ctx=k; o.n=sc.querySelector(".sn").value; draw(); }); sc.querySelector(".ctx").appendChild(b); });
+    [["0","J'ai résisté"],["1","J'ai grignoté"]].forEach(function(p){ var b=el('<button aria-pressed="'+(o.ate===(p[0]==="1"))+'">'+p[1]+'</button>'); b.addEventListener("click",function(){ o.ate=p[0]==="1"; o.n=sc.querySelector(".sn").value; draw(); }); sc.querySelector(".ate").appendChild(b); });
+    var rg=sc.querySelector("input[type=range]"); rg.addEventListener("input",function(){ o.e=+this.value; sc.querySelector(".ev").textContent=o.e+"/5"; });
+    if(o.n) sc.querySelector(".sn").value=o.n;
+    sc.querySelector("#snOk").addEventListener("click",function(){ if(!o.ctx||o.ate===null) return;
+      var id=Date.now().toString(36); state.en.sn[id]={t:new Date().toISOString(),e:o.e,ctx:o.ctx,ate:o.ate,n:(sc.querySelector(".sn").value||"").slice(0,140)};
+      save(); document.getElementById("sheet").classList.add("hide"); renderJour(); });
+    sc.querySelector("#snNo").addEventListener("click",function(){ document.getElementById("sheet").classList.add("hide"); });
+  }
+  draw(); document.getElementById("sheet").classList.remove("hide");
+}
+
+/* ---------- entretien ---------- */
+function weightPoints(){ var pts=[], v1=num(state.mes.poids_1), v10=num(state.mes.poids_10);
+  if(v1!==null&&state.start) pts.push({d:dateOf(1),v:v1,l:"J1"}); if(v10!==null&&state.start) pts.push({d:dateOf(10),v:v10,l:"J10"});
+  Object.keys(state.en.w).forEach(function(k){ var v=num(state.en.w[k]); if(v!==null) pts.push({d:parseD(k),v:v}); });
+  pts.sort(function(a,b){ return a.d-b.d; }); return pts; }
+function chartSVG(pts,target){
+  if(pts.length<2) return '<div class="wlab" style="padding:14px">La courbe apparaît dès deux pesées.</div>';
+  var W=320,H=160,pl=34,pr=10,pt=12,pb=24, t0=+pts[0].d, t1=+pts[pts.length-1].d;
+  var vs=pts.map(function(p){ return p.v; }); if(target!==null) vs.push(target);
+  var vmin=Math.min.apply(null,vs)-0.5, vmax=Math.max.apply(null,vs)+0.5;
+  function X(d){ return pl+((+d)-t0)/((t1-t0)||1)*(W-pl-pr); } function Y(v){ return pt+(vmax-v)/(vmax-vmin)*(H-pt-pb); }
+  var line=pts.map(function(p){ return X(p.d).toFixed(1)+","+Y(p.v).toFixed(1); }).join(" ");
+  var tr=pts.map(function(p,i){ var a=pts.slice(Math.max(0,i-2),i+1); var m=a.reduce(function(s,x){ return s+x.v; },0)/a.length; return X(p.d).toFixed(1)+","+Y(m).toFixed(1); }).join(" ");
+  var g='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Courbe de poids">';
+  g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(H-pb)+'" y2="'+(H-pb)+'" stroke="var(--line)"/>';
+  g+='<text x="'+(pl-6)+'" y="'+(Y(vmax-0.5)+4)+'" text-anchor="end" font-size="10" fill="var(--ink2)">'+fmt(vmax-0.5)+'</text>';
+  g+='<text x="'+(pl-6)+'" y="'+(Y(vmin+0.5)+4)+'" text-anchor="end" font-size="10" fill="var(--ink2)">'+fmt(vmin+0.5)+'</text>';
+  if(target!==null) g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+Y(target)+'" y2="'+Y(target)+'" stroke="var(--ocre)" stroke-dasharray="4 4"/><text x="'+(W-pr)+'" y="'+(Y(target)-4)+'" text-anchor="end" font-size="10" fill="var(--ocre)">objectif '+fmt(target)+'</text>';
+  g+='<polyline points="'+tr+'" fill="none" stroke="var(--violet)" stroke-width="2" stroke-dasharray="5 4" opacity=".55"/>';
+  g+='<polyline points="'+line+'" fill="none" stroke="var(--violet)" stroke-width="2.5" stroke-linejoin="round"/>';
+  pts.forEach(function(p){ g+='<circle cx="'+X(p.d).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3.5" fill="var(--surface)" stroke="var(--violet)" stroke-width="2"/>'; });
+  g+='<text x="'+pl+'" y="'+(H-8)+'" font-size="10" fill="var(--ink2)">'+shortDate(pts[0].d)+'</text><text x="'+(W-pr)+'" y="'+(H-8)+'" text-anchor="end" font-size="10" fill="var(--ink2)">'+shortDate(pts[pts.length-1].d)+'</text>';
+  return g+'</svg><div class="wlab">Trait plein : tes pesées. Pointillé : la tendance, qui lisse les variations d\'une semaine à l\'autre.</div>';
+}
+function projText(){ var pts=weightPoints(), t=num(state.en.target);
+  if(t===null) return "Fixe un objectif si tu veux voir une trajectoire. C'est facultatif.";
+  if(!pts.length) return "Note ta première pesée pour voir la trajectoire.";
+  var last=pts[pts.length-1].v; if(last<=t) return "Objectif atteint. La suite, c'est de stabiliser.";
+  var wk=Math.ceil((last-t)/0.5);
+  return "Il reste "+fmt(last-t)+" kg. À un rythme durable d'environ 0,5 kg par semaine, compte autour de "+wk+" semaine"+(wk>1?"s":"")+". C'est un repère, pas un examen."; }
+function paintChart(){ var c=document.getElementById("enChart"); if(c) c.innerHTML=chartSVG(weightPoints(),num(state.en.target)); var p=document.getElementById("enProj"); if(p) p.textContent=projText(); }
+function famSummary(f){ var t=0,dig=null,h=0,rank={ok:0,moyen:1,mal:2};
+  for(var n=f.a;n<=f.b;n++){ var fm=dayState(n).fam||{}; if(fm.t) t++; if(fm.dig&&(dig===null||rank[fm.dig]>rank[dig])) dig=fm.dig; if(fm.faim==="hausse") h++; }
+  return {t:t,len:f.b-f.a+1,dig:dig,h:h}; }
+function renderEntretien(){
+  var host=document.getElementById("enBody"); host.innerHTML="";
+  document.getElementById("msg").textContent="Une pesée par semaine suffit. Regarde la tendance, pas le chiffre du jour.";
+  var wk=weekKey(new Date());
+  host.appendChild(el('<div class="secttl">Pesée de la semaine du '+shortDate(parseD(wk))+'</div>'));
+  var pc=el('<div class="card"><div style="padding:12px 14px"><div class="sub" style="margin:0 0 8px">Même protocole qu\'au C9 : au réveil, à jeun, même balance.</div><input type="number" inputmode="decimal" step="0.1" placeholder="Poids en kg" id="enW"></div><div id="enChart"></div></div>');
+  var wi=pc.querySelector("#enW"); wi.value=state.en.w[wk]||"";
+  wi.addEventListener("input",function(){ state.en.w[wk]=this.value; save(); paintChart(); paintHeader(); });
+  host.appendChild(pc);
+  host.appendChild(el('<div class="secttl">Objectif, facultatif</div>'));
+  var oc=el('<div class="card"><div style="padding:12px 14px"><input type="number" inputmode="decimal" step="0.1" placeholder="Poids visé en kg" id="enT"><div class="sub" id="enProj" style="margin-top:8px"></div></div></div>');
+  var ti=oc.querySelector("#enT"); ti.value=state.en.target||"";
+  ti.addEventListener("input",function(){ state.en.target=this.value; save(); paintChart(); });
+  host.appendChild(oc);
+  var mk=monthKey(new Date()); if(!state.en.m[mk]) state.en.m[mk]={};
+  host.appendChild(el('<div class="secttl">Mensurations de '+MOIS[new Date().getMonth()]+'</div>'));
+  var mc=el('<div class="card"></div>');
+  MESURES.filter(function(x){ return x.k!=="poids"; }).forEach(function(x){
+    var v1=num(state.mes[x.k+"_1"]);
+    var r=el('<div class="row" style="align-items:center"><div class="txt"><div class="lbl">'+x.l.replace(/ \(.*\)/,"")+'</div><div class="sub dlt"></div></div><input type="number" inputmode="decimal" step="0.1" style="width:84px" placeholder="cm"></div>');
+    var inp=r.querySelector("input"); inp.value=state.en.m[mk][x.k]||"";
+    function dl(){ var v=num(inp.value); r.querySelector(".dlt").textContent= v1===null ? "" : (v===null ? "J1 : "+fmt(v1)+" cm" : "J1 : "+fmt(v1)+" cm · "+(v-v1<0?"−":"+")+fmt(Math.abs(v-v1))+" cm"); }
+    inp.addEventListener("input",function(){ state.en.m[mk][x.k]=this.value; save(); dl(); }); dl();
+    mc.appendChild(r); });
+  host.appendChild(mc);
+  host.appendChild(el('<div class="secttl">Journal des envies</div>'));
+  var sb=el('<button class="hunger">J\'ai une envie</button>'); sb.addEventListener("click",openSnack); host.appendChild(sb);
+  var es=snackEntries().slice(0,8);
+  host.appendChild(el('<div class="card"><div class="warn" style="border-top:0">'+snackPatterns()+'</div>'+es.map(snackRow).join("")+'</div>'));
+  if(state.start&&Object.keys(state.d).some(function(k){ return +k>=11&&dayState(+k).fam&&dayState(+k).fam.t; })){
+    host.appendChild(el('<div class="secttl">Bilan de ta transition</div>'));
+    var bc=el('<div class="card"></div>');
+    FAM.forEach(function(f){ var s=famSummary(f);
+      bc.appendChild(el('<div class="row"><div class="txt"><div class="lbl">'+f.n+'</div><div class="sub">'+(s.t?"Testé "+s.t+" jour"+(s.t>1?"s":"")+" sur "+s.len+" · digestion "+(s.dig?DIG[s.dig]:"non notée")+(s.h?" · faim en hausse "+s.h+" fois":" · faim stable"):"Pas testé")+'</div></div></div>')); });
+    host.appendChild(bc);
+  }
+  var cb=el('<button class="hunger" style="margin-top:4px">Envoyer mon bilan à mon coach</button>'); cb.addEventListener("click",openCoach); host.appendChild(cb);
+  paintChart();
+}
+
+/* ---------- historique des programmes ---------- */
+function avgFeel(k){ var s=0,c=0; for(var n=1;n<=9;n++){ var v=dayState(n).r[k]; if(typeof v==="number"){ s+=v; c++; } } return c?(s/c).toFixed(1).replace(".",","):""; }
+function c9Summary(){ if(!state.start) return null; var done=0; for(var n=1;n<=9;n++) if(isDone(n)) done++;
+  return {start:state.start,done:done,p1:state.mes.poids_1||"",p10:state.mes.poids_10||"",t1:state.mes.taille_1||"",t10:state.mes.taille_10||"",e:avgFeel("e"),f:avgFeel("f"),aloe:state.aloe||"",fiber:state.fiber||""}; }
+function histCard(h,live){
+  var d=parseD(h.start), e=new Date(d); e.setDate(e.getDate()+8);
+  function pair(a,b,u){ var x=num(a),y=num(b); if(x===null) return "—"; return fmt(x)+(y!==null?" → "+fmt(y)+" "+u+" ("+(y-x<0?"−":"+")+fmt(Math.abs(y-x))+")":" "+u); }
+  return '<div class="row"><div class="txt"><div class="lbl">C9 du '+d.getDate()+" "+MOIS[d.getMonth()]+" "+d.getFullYear()+(live?' <span class="qty">en cours</span>':'')+'</div>'+
+    '<div class="sub">'+h.done+'/9 jours bouclés'+(ALOES[h.aloe]?' · '+ALOES[h.aloe].n:'')+'</div>'+
+    '<div class="sub">Poids : '+pair(h.p1,h.p10,"kg")+'<br>Taille : '+pair(h.t1,h.t10,"cm")+'</div>'+
+    (h.e||h.f?'<div class="sub">Énergie moyenne '+(h.e||"—")+'/5 · faim moyenne '+(h.f||"—")+'/5</div>':'')+'</div></div>'; }
+function histHTML(){ var list=[], cs=c9Summary(); if(cs) list.push(histCard(cs,true));
+  Object.keys(state.hist).sort().reverse().forEach(function(k){ if(state.hist[k]&&state.hist[k].start) list.push(histCard(state.hist[k],false)); });
+  return list.length?list.join(""):'<div class="row"><div class="sub" style="margin:0">Aucun programme pour l\'instant.</div></div>'; }
+function addBilanExtras(){
+  var host=document.getElementById("j10Body");
+  var go=el('<button class="go" style="width:100%;margin:6px 0 4px">Commencer la transition →</button>');
+  go.addEventListener("click",function(){ cur=11; renderJour(); paintHeader(); paintDays(); paintNext(); window.scrollTo(0,0); });
+  host.appendChild(el('<div class="secttl">Mes programmes C9</div>')); host.appendChild(el('<div class="card">'+histHTML()+'</div>')); host.appendChild(go);
+}
+
+/* ---------- repères, bilan coach, recommencer ---------- */
+function renderReperes(){
+  renderReperesC9();
+  var h=document.getElementById("histR"); if(h) h.innerHTML=histHTML();
+  var t=document.getElementById("trR"); if(t){ t.innerHTML=""; keepToggles(t,true);
+    var ci=el('<label class="tog">Heure de fringale<input type="time" style="width:auto" value="'+(state.tr.craving||"")+'"></label>');
+    ci.querySelector("input").addEventListener("change",function(){ state.tr.craving=this.value||""; state.tr.cfg=true; save(); paintNext(); });
+    t.appendChild(ci); }
+}
+function bilanText(o){
+  var t=bilanTextC9(o), L=[], pd=programDay();
+  if(pd>=11){ L.push(""); L.push("Transition (J11 à J24)");
+    FAM.forEach(function(f){ var s=famSummary(f); L.push(f.n+" : "+(s.t?"testé "+s.t+"/"+s.len+" j · digestion "+(s.dig?DIG[s.dig]:"—")+" · faim en hausse "+s.h+" fois":"pas testé")); });
+    var dn=0; for(var n=11;n<=Math.min(pd,24);n++) if(trDone(n)) dn++; L.push("Jours bouclés : "+dn+"/"+(Math.min(pd,24)-10));
+    if(o.notes){ for(var n2=11;n2<=24;n2++){ var tx=(dayState(n2).n||"").trim(); if(tx) L.push("J"+n2+" : "+tx.replace(/\s*\n\s*/g," · ")); } } }
+  var wk=Object.keys(state.en.w).filter(function(k){ return num(state.en.w[k])!==null; }).sort().slice(-6);
+  if(pd>=25||wk.length){ L.push(""); L.push("Entretien");
+    if(o.mes){ wk.forEach(function(k){ L.push("Semaine du "+shortDate(parseD(k))+" : "+fmt(num(state.en.w[k]))+" kg"); }); if(num(state.en.target)!==null) L.push("Objectif : "+fmt(num(state.en.target))+" kg"); }
+    L.push("Envies : "+snackPatterns()); }
+  return t+(L.length?"\n"+L.join("\n"):"");
+}
+function doReset(full){
+  if(writing){ setTimeout(function(){ doReset(full); },300); return; }
+  clearTimeout(flushTimer);
+  var hist= full?{}:clone(state.hist), en= full?{}:clone(state.en), tr= full?{}:{keep:clone(state.tr.keep),craving:state.tr.craving||""};
+  if(!full){ var sm=c9Summary(); if(sm) hist[state.start]=sm; }
+  state={d:{},mes:{},obj:"",mesnote:"",k:{},cel:{},swap:{},hist:hist,en:en,tr:tr}; norm();
+  var fresh=clone(state);
+  function done(){ base=fresh; docExists=true; writing=false; persistLocal(); syncState="ok"; paintSync(); }
+  persistLocal();
+  if(docRef&&ready){ writing=true; syncState="wait"; paintSync(); docRef.set(fresh).then(done,function(){ writing=false; syncState="local"; paintSync(); }); }
+  document.getElementById("sheet").classList.add("hide");
+  view="jour";
+  document.querySelectorAll("nav button").forEach(function(x){ x.setAttribute("aria-selected",String(x.getAttribute("data-v")==="jour")); });
+  ["jour","menus","courses","encas","reperes"].forEach(function(v){ document.getElementById("v-"+v).classList.toggle("hide",v!=="jour"); });
+  render(); window.scrollTo(0,0);
+}
+function openReset(){
+  var sc=document.getElementById("sheetc");
+  sc.innerHTML='<h2>Recommencer un C9 ?</h2>'+
+    '<div class="tip">Ton C9 actuel est archivé dans « Mes programmes » : dates, jours bouclés, mesures et ressenti moyen. Les cases, notes, courses et choix de produits repartent à zéro. Ta pesée hebdomadaire et ton journal des envies sont conservés.</div>'+
+    '<button class="go" id="rBilan" style="width:100%;margin-top:12px">Envoyer mon bilan d\'abord</button>'+
+    '<button class="danger fill" id="rGo">Archiver et recommencer</button>'+
+    '<button class="danger" id="rAll" style="margin-top:0">Tout effacer, historique compris</button>'+
+    '<button class="close" id="rNo">Annuler</button>';
+  sc.querySelector("#rBilan").addEventListener("click",openCoach);
+  sc.querySelector("#rGo").addEventListener("click",function(){ doReset(false); });
+  sc.querySelector("#rAll").addEventListener("click",function(){ if(sc.querySelector("#rAll").dataset.c){ doReset(true); } else { sc.querySelector("#rAll").dataset.c="1"; sc.querySelector("#rAll").textContent="Confirmer : tout effacer définitivement"; } });
+  sc.querySelector("#rNo").addEventListener("click",function(){ document.getElementById("sheet").classList.add("hide"); });
+  document.getElementById("sheet").classList.remove("hide");
+}
+
+
+function render(){ renderAloe(); paintHeader(); paintDays(); renderJour(); paintNext(); renderMenus(); renderCourses(); renderEncas(); renderReperes(); }
+
+document.getElementById("note").addEventListener("input",function(){ dayState(cur).n=this.value; save(); });
+document.getElementById("objectif").addEventListener("input",function(){ state.obj=this.value; save(); });
+document.getElementById("mesnote").addEventListener("input",function(){ state.mesnote=this.value; save(); });
+document.getElementById("resetCourses").addEventListener("click",function(){ Object.keys(state.k).forEach(function(k){ state.k[k]=false; }); save(); renderCourses(); });
+document.querySelectorAll("nav button").forEach(function(b){
+  b.addEventListener("click",function(){
+    view=b.getAttribute("data-v");
+    document.querySelectorAll("nav button").forEach(function(x){ x.setAttribute("aria-selected",String(x===b)); });
+    ["jour","menus","courses","encas","reperes"].forEach(function(v){ document.getElementById("v-"+v).classList.toggle("hide",v!==view); });
+    if(view==="jour"){ renderJour(); paintNext(); }
+    if(view==="reperes") renderReperes();
+    window.scrollTo(0,0);
+  });
+});
+document.addEventListener("visibilitychange",function(){ if(!document.hidden){ paintNext(); flush(); } });
+setInterval(paintNext,60000);
+
+load();
+})();
+</script>
+<div id="upd" class="updbar hide">Nouvelle version disponible <button id="updBtn">Recharger</button></div>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./sw.js").then(function(reg){
+      function ask(w){ document.getElementById("upd").classList.remove("hide"); document.getElementById("updBtn").onclick=function(){ w.postMessage("skip"); }; }
+      if(reg.waiting&&navigator.serviceWorker.controller) ask(reg.waiting);
+      reg.addEventListener("updatefound",function(){ var w=reg.installing; if(!w) return;
+        w.addEventListener("statechange",function(){ if(w.state==="installed"&&navigator.serviceWorker.controller) ask(w); }); });
+    }).catch(function(){});
+    var reloaded=false;
+    navigator.serviceWorker.addEventListener("controllerchange",function(){ if(reloaded) return; reloaded=true; location.reload(); });
+  });
+}
+</script>
+</body>
+</html>
