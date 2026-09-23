@@ -1,5 +1,5 @@
 /* Suivi C9 — service worker. Change CACHE à chaque mise en ligne d'une nouvelle version. */
-const CACHE = "suivi-c9-v3.0.5";
+const CACHE = "suivi-c9-v3.1.0";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png",
   "./icons/apple-touch-icon.png", "./icons/favicon-32.png"];

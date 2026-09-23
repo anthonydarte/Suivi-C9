@@ -127,6 +127,17 @@ h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;font-weight:7
 .water.bonus .glass{height:34px;border-style:dashed}
 .water.bonus .glass.on{border-style:solid;border-color:var(--vert)}
 .water.bonus .glass .lvl{background:var(--vert)}
+.mrow{display:flex;align-items:stretch;border-top:1px solid var(--line);background:var(--surface)}
+.mrow:first-of-type{border-top:0}
+.mrow details{flex:1;border-top:0;min-width:0}
+.mrow .grip{flex:0 0 34px;display:flex;align-items:flex-start;justify-content:center;padding-top:13px;color:var(--violet);font-weight:800;letter-spacing:-2px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.mrow.locked .grip{cursor:default;letter-spacing:0;font-size:12px;opacity:.6}
+.mrow .detail{padding-left:58px}
+.mrow.dragging{opacity:.35}
+.mrow.over{box-shadow:inset 0 0 0 2px var(--violet);background:var(--violet-soft)}
+.mrow.ghost{position:fixed;z-index:60;pointer-events:none;border:1px solid var(--violet);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.rlink{color:var(--violet);font-weight:600;font-size:13px;text-decoration:none}
+details.flash{background:var(--violet-soft)}
 .wlab{padding:0 14px 12px;font-size:12.5px;color:var(--ink2)}
 
 .hunger{display:block;width:100%;margin:0 0 12px;padding:13px;border-radius:14px;border:1.5px dashed var(--violet);
@@ -331,12 +342,10 @@ input[type=time]{font-family:var(--body);font-size:14px;color:var(--ink);backgro
     <div class="secttl">Proposition de menus : un plat par jour, l'autre repas en shake · inversable dans l'onglet Jour</div>
     <div class="card"><div style="padding:12px 14px"><div class="lbl" style="margin-bottom:8px">Tes 200 kcal en plus</div><div class="seg" id="extM"></div></div></div>
     <div class="card" id="menuList"></div>
+    <div class="secttl">Recettes de shake</div>
+    <div class="card" id="shakeList"></div>
     <div class="secttl">À cuisiner en avance</div>
-    <div class="card"><div class="lists" style="font-size:13.5px;color:var(--ink2)">
-      <p style="margin:0 0 8px">Soir du J2 : rien à cuisiner. Sors juste ce qui doit décongeler pour le repas de demain.</p>
-      <p style="margin:0 0 8px">J7 : lentilles + saumon le midi pour le soir, et double la portion de riz sauvage.</p>
-      <p style="margin:0">Soir du J8 : monte le burrito bowl pour l'emporter le lendemain, il se mange froid.</p>
-    </div></div>
+    <div class="card"><div class="lists" id="prep" style="font-size:13.5px;color:var(--ink2)"></div></div>
   </section>
 
   <section id="v-courses" class="hide">
@@ -571,12 +580,12 @@ var COURSES=[
 var DAYMSG={
  1:"Premier jour de reset. Avoir faim fait partie du jeu : bois, croque des légumes à volonté, ça passe.",
  2:"Dernier jour sans repas solide. Le mal de tête du sevrage de café tombe souvent aujourd'hui, c'est normal.",
- 3:"Bascule : premier vrai repas ce soir. La faim devrait commencer à se calmer.",
+ 3:"Bascule : premier vrai repas aujourd'hui. La faim devrait commencer à se calmer.",
  4:"Le rythme est pris. Aujourd'hui, vise surtout les 8 verres d'eau.",
  5:"Mi-parcours. Relis ta note du jour 1 : tu sens déjà la différence ?",
- 6:"Jour de la gaufre. Gare aux repas partagés : prépare ta réponse à l'avance.",
- 7:"Plus que trois jours. Cuisine les lentilles et le saumon tranquillement.",
- 8:"Avant-dernier jour. Ce soir, monte le burrito bowl de demain.",
+ 6:"Gare aux repas partagés : prépare ta réponse à l'avance.",
+ 7:"Plus que trois jours. La ligne d'arrivée approche.",
+ 8:"Avant-dernier jour. Jette un œil aux menus de demain : deux vrais repas.",
  9:"Dernière ligne droite : deux vrais repas aujourd'hui. Demain matin, mesures.",
  10:"C'est fini. Mesure-toi au réveil, dans les mêmes conditions qu'au jour 1, puis regarde le chemin parcouru."
 };
@@ -586,7 +595,7 @@ var ACT={
  3:"Idée : yoga débutant ou longs étirements.",
  4:"Idée : marche un peu plus vive, en pouvant toujours parler.",
  5:"Idée : circuit doux au poids du corps, sans essoufflement.",
- 6:"Idée : longue balade du samedi, rythme tranquille.",
+ 6:"Idée : longue balade, rythme tranquille.",
  7:"Idée : vélo tranquille ou marche, 30 à 45 min.",
  8:"Idée : mobilité et gainage court, au calme.",
  9:"Idée : 30 min de marche, et 3 min debout toutes les 30 min."
@@ -635,7 +644,7 @@ function renderAloe(){
   var en=document.getElementById("extRnote"); if(en) en.textContent=extraNote();
   if(!extra() && cur<=9){
     var c3=el('<div class="card"><div style="padding:14px"><div class="lbl">Tes 200 kcal en plus, du J3 au J9 ?</div>'+
-      '<div class="sub">Option prévue par le livret pour les hommes. En shake : un Lite Ultra bonus à 16 h. Dans le plat : une portion en plus au repas.</div>'+
+      '<div class="sub">Option prévue par le livret pour les hommes. En shake : un shake à 16 h, Lite Ultra simple ou recette, au choix chaque jour. Dans le plat : une portion en plus au repas.</div>'+
       '<div class="seg" style="margin-top:10px"></div></div></div>');
     fillExt(c3.querySelector(".seg")); ask.appendChild(c3);
   }
@@ -659,7 +668,7 @@ function renderAloe(){
   }
 }
 function foreverLine(){ var a=aloe(), f=fiber(), x=extra();
-  return "2 × 1 L de Forever "+a.n+" · 36 capsules de Lean · 18 comprimés de Therm · 9 "+(state.fiber==="fusion"?"doses":"sachets")+" de "+f.n+" · "+(x==="shake"?"22":"15")+" doses de Lite Ultra"+(x==="shake"?" (un second sachet)":"")+"."; }
+  return "2 × 1 L de Forever "+a.n+" · 36 capsules de Lean · 18 comprimés de Therm · 9 "+(state.fiber==="fusion"?"doses":"sachets")+" de "+f.n+" · "+((x==="shake"||x==="recette")?"22":"15")+" doses de Lite Ultra"+((x==="shake"||x==="recette")?" (un second sachet)":"")+"."; }
 var FIBERS={poudre:{n:"Forever Fiber",t:"1 sachet de <b>Forever Fiber</b> dans 200 ml d'eau",q:"9 sachets"},
   fusion:{n:"Forever Fiber Fusion",t:"1 dose de <b>Forever Fiber Fusion</b>",q:"9 doses"}};
 function fiber(){ return FIBERS[state.fiber]||null; }
@@ -678,9 +687,10 @@ var C={rg1:2*Math.PI*42,rg2:2*Math.PI*30,rg3:2*Math.PI*18};
 var lastStart=null;
 function norm(){ ["d","mes","k","cel","swap"].forEach(function(k){ if(!state[k]||typeof state[k]!=="object") state[k]={}; });
   if(typeof state.obj!=="string") state.obj=""; if(typeof state.mesnote!=="string") state.mesnote="";
-  ["hist"].forEach(function(k){ if(!isObj(state[k])) state[k]={}; });
+  ["hist","mplan"].forEach(function(k){ if(!isObj(state[k])) state[k]={}; });
   if(!isObj(state.tr)) state.tr={}; if(!isObj(state.tr.keep)) state.tr.keep={};
   if(!isObj(state.en)) state.en={}; ["w","m","sn"].forEach(function(k){ if(!isObj(state.en[k])) state.en[k]={}; });
+  if(state.extra==="recette") state.extra="shake";
   var m=state.mes;
   if(m.cuisses_1&&!m.cuisseG_1){ var q=String(m.cuisses_1).split(/[.,]/); if(q.length===2){ m.cuisseG_1=q[0]; m.cuisseD_1=q[1]; } }
   if(state.start!==lastStart){
@@ -690,7 +700,8 @@ function norm(){ ["d","mes","k","cel","swap"].forEach(function(k){ if(!state[k]|
     var pd=programDay(); cur= pd<1?1:(pd>24?25:pd);
   }
 }
-var EXTRAS={sans:{n:"Sans"},shake:{n:"En shake Lite Ultra"},plat:{n:"Dans le plat"}};
+var EXTRAS={sans:{n:"Sans"},shake:{n:"En shake"},plat:{n:"Dans le plat"}};
+function shakeMode(){ var x=extra(); return x==="shake"||x==="recette"; }
 var PLUS200={pasta:"+50 g de pâtes complètes crues",curry:"+60 g de couscous complet cru",thon:"+⅓ tasse de riz sauvage cru",
   gaufre:"+2 œufs et quelques dés d'avocat",lentilles:"+60 g de lentilles vertes crues",burrito:"+½ tasse de riz brun cuit et ¼ d'avocat"};
 var EXTRA_Q={"c-pates":"+ 100 g","c-couscous":"+ 60 g","c-rizs":"+ 55 g","c-oeufs":"+ 4","c-lentilles":"+ 60 g","c-avocat":"+ ½"};
@@ -700,19 +711,42 @@ function plan(n){
   var b=basePlan(n), x=extra();
   if(n>=3&&x==="plat"){ var sl=extraSlot(n), key=menuOf(n)[sl];
     b.forEach(function(bl){ if(bl.k===sl&&key&&PLUS200[key]){ bl.s=bl.s.slice(); bl.s.push("+200 kcal : "+PLUS200[key]+" (≈ 200 kcal)"); } }); }
-  if(n>=3&&x==="shake"){ var i=0; while(i<b.length&&b[i].k!=="din") i++;
-    b.splice(i,0,{k:"bonus",h:"16:00",l:"Shake bonus",s:["1 dose de <b>Forever Lite Ultra</b> dans 240 ml d'eau ou de lait végétal : tes 200 kcal en plus"]}); }
+  if(n>=3&&(x==="shake"||x==="recette")){ var i=0; while(i<b.length&&b[i].k!=="din") i++;
+    var sh=shakeOf(n);
+    b.splice(i,0,{k:"bonus",h:"16:00",l:"Shake bonus",s: sh ? ["<b>"+sh.n+"</b> ("+sh.k+" kcal), avec ta dose de <b>Forever Lite Ultra</b>","Remplace ta portion de fruit ou fruits à coque du jour",'<a href="#" class="rlink" data-sk="'+shakeKey(n)+'">Voir la recette →</a>']
+      : ["1 dose de <b>Forever Lite Ultra</b> dans 240 ml d'eau ou de lait végétal : tes 200 kcal en plus"]}); }
   return b;
 }
 function totalMeals(n){ return n>=11?tKeys(n).length:plan(n).length; }
 function fillExt(host){ if(!host) return; host.innerHTML="";
-  Object.keys(EXTRAS).forEach(function(k){ var b=el('<button aria-pressed="'+(state.extra===k)+'">'+EXTRAS[k].n+'</button>');
+  Object.keys(EXTRAS).forEach(function(k){ var b=el('<button aria-pressed="'+(state.extra===k)+'"'+(k==="recette"&&restricted()?" disabled":"")+'>'+EXTRAS[k].n+'</button>');
     b.addEventListener("click",function(){ state.extra=k; save(); render(); }); host.appendChild(b); }); }
 function extraNote(){ var x=extra(); if(!x) return "Pas encore choisi.";
   return x==="sans"?"Tu restes à environ 1 000 à 1 200 kcal par jour, sans supplément."
-   : x==="shake"?"Un shake Lite Ultra bonus à 16 h, du J3 au J9 : 7 doses en plus des 15 du kit."
+   : x==="shake"?"Un shake à 16 h, du J3 au J9 : Lite Ultra simple ou recette, au choix chaque jour dans le planning. 7 doses de Lite Ultra en plus des 15 du kit."
    : "Une portion en plus dans ton plat du jour, indiquée dans les prises et les menus."; }
-function menuOf(n){ var m=MENUS[n]||{}; if(n>=3&&n<=8&&state.swap&&state.swap[n]) return {dej:m.din,din:m.dej}; return m; }
+var SHAKES={
+ fm:{n:"Milk shake fraise myrtille",k:202,i:["250 ml de lait de coco non sucré","½ tasse de myrtilles congelées","5 fraises entières congelées","½ tasse d'épinards frais","1 dose de Forever Lite Ultra chocolat","4 à 6 glaçons"]},
+ melon:{n:"Milk shake melon menthe",k:256,i:["¾ de tasse de melon, vert ou jaune","1 càs de beurre d'amande","½ tasse de glaçons","½ tasse d'eau","1 dose de Forever Lite Ultra vanille","½ tasse de menthe fraîche"]},
+ ging:{n:"Milk shake gingembre",k:259,i:["1 poire évidée","1 concombre","½ citron pressé","¼ de tasse de coriandre fraîche","1 morceau de gingembre frais","½ tasse de glaçons","1 tasse de boisson de coco","1 dose de Forever Lite Ultra vanille"]},
+ myr:{n:"Milk shake myrtille",k:274,i:["1 tasse d'épinards","½ tasse de myrtilles congelées","1 tasse de boisson de coco","½ citron vert pressé","1 dose de Forever Lite Ultra vanille"]},
+ cb:{n:"Milk shake choco banane",k:275,i:["1 banane","1 càs de purée d'amande (ou de beurre de cacahuète)","½ tasse de glaçons","1 tasse de lait végétal sans sucre ajouté","1 dose de Forever Lite Ultra chocolat"]},
+ vert:{n:"Milk shake vert",k:285,i:["3 branches de céleri","¼ d'avocat","½ pomme verte","1 tasse de boisson de coco","4 à 6 glaçons","½ citron pressé","1 tasse de persil","1 pincée de sel","1 pincée de piment de Cayenne (facultatif)","1 dose de Forever Lite Ultra vanille"]}
+};
+function shakeOf(n){ var s=dayState(n); return (extra()==="shake"&&n>=3&&n<=9&&!restricted()&&s.sm==="recette")?(SHAKES[s.sk]||SHAKES.fm):null; }
+function shakeKey(n){ var k=dayState(n).sk; return SHAKES[k]?k:"fm"; }
+function goRecipe(k){ goTab("menus"); setTimeout(function(){ var d=document.querySelector('#shakeList details[data-sk="'+k+'"]'); if(d){ d.open=true; d.scrollIntoView({block:"center"}); d.classList.add("flash"); setTimeout(function(){ d.classList.remove("flash"); },1600); } },60); }
+var SLOTS=["3","4","5","6","7","8","9m","9s"];
+function defPlat(k){ if(k==="9m") return MENUS[9].dej; if(k==="9s") return MENUS[9].din; var m=MENUS[+k]||{}; return m.dej||m.din; }
+function platOf(k){ return (state.mplan&&state.mplan[k])||defPlat(k); }
+function menuOf(n){
+  if(n===9) return {dej:platOf("9m"),din:platOf("9s")};
+  if(n<3||n>8) return MENUS[n]||{};
+  var m=MENUS[n]||{}, midi=!!m.dej; if(state.swap&&state.swap[n]) midi=!midi;
+  var o={}; o[midi?"dej":"din"]=platOf(String(n)); return o; }
+function slotDay(k){ return parseInt(k,10); }
+function slotMeal(k){ if(k==="9m") return "dej"; if(k==="9s") return "din"; return menuOf(+k).dej?"dej":"din"; }
+function slotLocked(k){ var n=slotDay(k); return programDay()>n || !!dayState(n).c[slotMeal(k)]; }
 function rangeTxt(){ var a=dateOf(1), b=dateOf(9);
   return a.getMonth()===b.getMonth() ? a.getDate()+" → "+b.getDate()+" "+MOIS[b.getMonth()] : a.getDate()+" "+MOIS[a.getMonth()]+" → "+b.getDate()+" "+MOIS[b.getMonth()]; }
 function defNext(){ var d=dateOf(10); d.setMonth(d.getMonth()+6); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -955,7 +989,28 @@ function renderJourC9(){
     if(b.w) c2.appendChild(el('<div class="warn">'+b.w+'</div>'));
   });
   host.appendChild(c2);
-  if(NOTES_MENU[cur]&&!(cur===6&&state.swap[6])) host.appendChild(el('<div class="warn" style="border:1px solid var(--line);border-radius:14px;margin-bottom:12px">'+NOTES_MENU[cur]+'</div>'));
+  if(extra()==="shake"&&cur>=3&&cur<=9){
+    var st=dayState(cur), rec=st.sm==="recette"&&!restricted();
+    var cs=el('<div class="card"><div style="padding:12px 14px"><div class="lbl">Ton shake bonus de 16 h</div>'+
+      '<div class="seg mode" style="margin-top:8px"></div><div class="rec"></div></div></div>');
+    [["ultra","Lite Ultra"],["recette","Recette"]].forEach(function(o){
+      var b=el('<button aria-pressed="'+((o[0]==="recette")===rec)+'"'+(o[0]==="recette"&&restricted()?" disabled":"")+'>'+o[1]+'</button>');
+      b.addEventListener("click",function(){ st.sm=o[0]; save(); renderJour(); paintNext(); }); cs.querySelector(".mode").appendChild(b); });
+    var rc=cs.querySelector(".rec");
+    if(restricted()) rc.appendChild(el('<div class="sub" style="margin-top:8px">Les recettes contiennent un fruit : exclues avec ton Forever '+aloe().n+'.</div>'));
+    else if(rec){
+      rc.appendChild(el('<div class="sub" style="margin-top:10px">Elle remplace ta portion de fruit ou fruits à coque du jour.</div>'));
+      var sg=el('<div class="seg" style="margin-top:8px"></div>');
+      Object.keys(SHAKES).forEach(function(k){
+        var b=el('<button aria-pressed="'+(shakeKey(cur)===k)+'">'+SHAKES[k].n.replace("Milk shake ","")+' · '+SHAKES[k].k+'</button>');
+        b.addEventListener("click",function(){ st.sk=k; save(); renderJour(); paintNext(); }); sg.appendChild(b); });
+      rc.appendChild(sg);
+      var lk=el('<a href="#" class="rlink" style="display:inline-block;margin-top:10px" data-sk="'+shakeKey(cur)+'">Voir la recette '+SHAKES[shakeKey(cur)].n.replace("Milk shake ","")+' →</a>');
+      rc.appendChild(lk);
+    }
+    host.appendChild(cs);
+  }
+  if(NOTES_MENU[cur]&&((cur===6&&menuOf(6).dej==="gaufre")||(cur===8&&menuOf(9).dej==="burrito")||cur===9)) host.appendChild(el('<div class="warn" style="border:1px solid var(--line);border-radius:14px;margin-bottom:12px">'+NOTES_MENU[cur]+'</div>'));
   if(cur===2){
     var c9c=el('<div class="card"><div class="row"><div class="txt"><div class="lbl">Demain, les vrais repas commencent</div><div class="sub">Vérifie la partie 2 de ta liste de courses : ce sont les ingrédients des repas du J3 au J9.</div></div><button class="pill">Voir</button></div></div>');
     c9c.querySelector(".pill").addEventListener("click",function(){ goTab("courses"); });
@@ -979,6 +1034,7 @@ function openHunger(){
     '<h2>Coup de faim</h2><div class="tip">'+tip+'</div>'+
     '<div class="hrow"><div><div class="lbl">Un grand verre d\'eau</div><div class="sub">'+s.w+' sur 8 aujourd\'hui.</div></div><button class="pill" data-a="w">+1 verre</button></div>'+
     (rs ? '<div class="hrow"><div><div class="lbl">Fruit ou fruits à coque</div><div class="sub">Exclu avec ton Forever '+an.n+' : sa pulpe apporte déjà ce sucre.</div></div><button class="pill" disabled>Exclu</button></div>' :
+    shakeOf(n) ? '<div class="hrow"><div><div class="lbl">Fruit ou fruits à coque</div><div class="sub">Remplacée aujourd\'hui par ton '+shakeOf(n).n.toLowerCase()+'.</div></div><button class="pill" disabled>Remplacée</button></div>' :
     '<div class="hrow"><div><div class="lbl">Fruit ou fruits à coque</div><div class="sub">'+(frLeft>0?"1 portion dispo : pomme, poire, orange, ½ tasse de fruits rouges, ou une petite poignée d'amandes.":"Portion du jour déjà prise.")+'</div></div><button class="pill" data-a="fr"'+(frLeft>0?'':' disabled')+'>'+(frLeft>0?"Je la prends":"Pris ✓")+'</button></div>')+
     '<div class="hrow"><div><div class="lbl">Légumes à portion</div><div class="sub">'+(lgLeft>0?lgLeft+" portion"+(lgLeft>1?"s":"")+" dispo : carottes, tomates, chou-fleur, brocoli, courgettes.":"Tes 2 portions sont prises.")+'</div></div><button class="pill" data-a="lg"'+(lgLeft>0?'':' disabled')+'>'+(lgLeft>0?"J'en prends une":"Pris ✓")+'</button></div>'+
     '<div class="hrow"><div><div class="lbl">À volonté, sans compter</div><div class="sub">Concombre, céleri, salade, endive, roquette, épinards, haricots verts. Crus ou vapeur, sans matière grasse.</div></div></div>'+
@@ -1062,7 +1118,7 @@ function bilanTextC9(o){
   L.push("Jours bouclés : "+done+"/9 · série en cours : "+streak());
   L.push(""); L.push("Détail par jour");
   for(var n2=1;n2<=Math.min(td,9);n2++){ var s=dayState(n2), r=s.r, parts=[];
-    parts.push("prises "+mealsDone(n2)+"/"+totalMeals(n2)); parts.push("eau "+s.w+"/8"+(s.wb?" +"+s.wb:"")); parts.push("bouger "+movesDone(n2)+"/3");
+    parts.push("prises "+mealsDone(n2)+"/"+totalMeals(n2)); parts.push("eau "+s.w+"/8"+(s.wb?" +"+s.wb:"")); if(shakeOf(n2)) parts.push("shake bonus "+shakeOf(n2).n.replace("Milk shake ","")); parts.push("bouger "+movesDone(n2)+"/3");
     if(typeof r.e==="number") parts.push("énergie "+r.e+"/5"); if(typeof r.f==="number") parts.push("faim "+r.f+"/5"); if(typeof r.s==="number") parts.push("sommeil "+r.s+"/5");
     L.push("J"+n2+" ("+shortDate(dateOf(n2))+") : "+parts.join(", ")+(isDone(n2)?" ✓":"")); }
   if(o.mes){ L.push(""); L.push("Mesures J1 → J10");
@@ -1096,6 +1152,7 @@ function openCoach(){
   upd(); document.getElementById("sheet").classList.remove("hide");
 }
 document.getElementById("coachBtn").addEventListener("click",openCoach);
+document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".rlink"); if(!a) return; e.preventDefault(); goRecipe(a.getAttribute("data-sk")); });
 
 /* ---------- recommencer ---------- */
 function doResetC9(){
@@ -1158,14 +1215,56 @@ document.getElementById("impFile").addEventListener("change",function(){
 /* ---------- autres onglets ---------- */
 function renderMenus(){
   var host=document.getElementById("menuList"); host.innerHTML="";
-  for(var n=3;n<=9;n++){ ["dej","din"].forEach(function(slot){
-    var r= slot==="dej"?repasDej(n):repasDin(n); if(!r) return;
-    var d=document.createElement("details");
-    d.innerHTML='<summary><span class="j">J'+n+' · '+(slot==="dej"?"midi":"soir")+'</span><span class="n">'+r.n+'</span><span class="k">'+r.k+(extra()==="plat"&&extraSlot(n)===slot?' + 200':'')+' kcal</span></summary>'+
-      '<div class="detail"><span class="tag">'+shortDate(dateOf(n))+'</span><ul><li>'+r.i.join("</li><li>")+'</li></ul>'+(extra()==="plat"&&extraSlot(n)===slot&&PLUS200[menuOf(n)[slot]]?'<p><b style="color:var(--violet)">Tes +200 kcal</b> : '+PLUS200[menuOf(n)[slot]]+'</p>':'')+'<p>'+r.p+'</p></div>';
-    host.appendChild(d);
-  }); }
+  host.appendChild(el('<div class="warn" style="border-top:0">Maintiens <b style="color:var(--violet)">⋮⋮</b> et glisse un plat sur un autre jour pour les échanger. Les jours passés ou déjà cochés sont verrouillés 🔒.</div>'));
+  SLOTS.forEach(function(k){
+    var n=slotDay(k), meal=slotMeal(k), key=platOf(k), r=R[key]; if(!r) return;
+    var lock=slotLocked(k), plus=extra()==="plat"&&extraSlot(n)===meal;
+    var row=el('<div class="mrow'+(lock?' locked':'')+'" data-slot="'+k+'">'+
+      '<div class="grip" aria-label="Déplacer">'+(lock?'🔒':'⋮⋮')+'</div>'+
+      '<details><summary><span class="j">J'+n+' · '+(meal==="dej"?"midi":"soir")+'</span><span class="n">'+r.n+'</span><span class="k">'+r.k+(plus?' + 200':'')+' kcal</span></summary>'+
+      '<div class="detail"><span class="tag">'+shortDate(dateOf(n))+'</span><ul><li>'+r.i.join("</li><li>")+'</li></ul>'+
+      (plus&&PLUS200[key]?'<p><b style="color:var(--violet)">Tes +200 kcal</b> : '+PLUS200[key]+'</p>':'')+'<p>'+r.p+'</p></div></details></div>');
+    if(!lock) row.querySelector(".grip").addEventListener("pointerdown",function(ev){ startDrag(ev,row); });
+    host.appendChild(row);
+  });
+  var custom=SLOTS.some(function(k){ return platOf(k)!==defPlat(k); });
+  if(custom){ var rs=el('<button class="reset" style="margin:10px auto">Revenir aux menus proposés</button>');
+    rs.addEventListener("click",function(){ if(!isObj(state.mplan)) state.mplan={}; SLOTS.forEach(function(k){ if(!slotLocked(k)) state.mplan[k]=defPlat(k); }); save(); renderMenus(); });
+    host.appendChild(rs); }
+  var shl=document.getElementById("shakeList");
+  if(shl){ shl.innerHTML="";
+    shl.appendChild(el('<div class="warn" style="border-top:0">'+(extra()!=="shake"
+      ? "Réservées au shake bonus de l'option « +200 kcal en shake », du J3 au J9. À choisir dans Repères."
+      : restricted() ? "Toutes contiennent un fruit : exclues avec ton Forever "+aloe().n+"."
+      : "Pour ton shake bonus de 16 h, les jours où tu choisis « Recette » dans le planning. Elle remplace alors ta portion de fruit ou fruits à coque.")+'</div>'));
+    Object.keys(SHAKES).forEach(function(k){ var r=SHAKES[k];
+      var d=el('<details data-sk="'+k+'"><summary><span class="j">'+r.k+' kcal</span><span class="n">'+r.n+'</span></summary><div class="detail"><ul><li>'+r.i.join("</li><li>")+'</li></ul><p>Mets tout dans un blender, mixe 20 à 30 secondes et bois aussitôt.</p></div></details>');
+      shl.appendChild(d); }); }
+  var pr=document.getElementById("prep");
+  if(pr){ var L=["Soir du J2 : rien à cuisiner. Sors juste ce qui doit décongeler pour le repas de demain."];
+    SLOTS.forEach(function(k){ var n=slotDay(k), key=platOf(k), meal=slotMeal(k);
+      if(key==="lentilles") L.push("J"+n+" : lance les lentilles à l'avance, elles demandent 20 min de cuisson.");
+      if(key==="burrito"&&meal==="dej") L.push("Soir du J"+(n-1)+" : monte le burrito bowl à emporter, il se mange froid.");
+      if(key==="curry") L.push("J"+n+" : le poulet au curry passe 25 min au four, prévois-le.");
+    });
+    pr.innerHTML=L.map(function(t,i){ return '<p style="margin:0'+(i<L.length-1?' 0 8px':'')+'">'+t+'</p>'; }).join(""); }
 }
+function startDrag(ev,row){
+  ev.preventDefault();
+  var from=row.getAttribute("data-slot"), rect=row.getBoundingClientRect(), dy=ev.clientY-rect.top, target=null;
+  var ghost=row.cloneNode(true); ghost.classList.add("ghost");
+  ghost.style.width=rect.width+"px"; ghost.style.left=rect.left+"px"; ghost.style.top=rect.top+"px";
+  document.body.appendChild(ghost); row.classList.add("dragging");
+  function clear(){ document.querySelectorAll(".mrow.over").forEach(function(x){ x.classList.remove("over"); }); }
+  function move(e){ ghost.style.top=(e.clientY-dy)+"px";
+    var hit=document.elementFromPoint(rect.left+rect.width/2,e.clientY), r=hit&&hit.closest?hit.closest(".mrow"):null;
+    clear(); target= r&&r!==row&&!r.classList.contains("locked") ? r : null; if(target) target.classList.add("over"); }
+  function up(){ document.removeEventListener("pointermove",move); document.removeEventListener("pointerup",up); document.removeEventListener("pointercancel",up);
+    ghost.remove(); row.classList.remove("dragging"); clear();
+    if(target) swapPlats(from,target.getAttribute("data-slot")); }
+  document.addEventListener("pointermove",move); document.addEventListener("pointerup",up); document.addEventListener("pointercancel",up);
+}
+function swapPlats(a,b){ if(!isObj(state.mplan)) state.mplan={}; var ka=platOf(a), kb=platOf(b); state.mplan[a]=kb; state.mplan[b]=ka; save(); renderMenus(); }
 function itemRow(it){
   var on=!!state.k[it.id];
   var node=el('<div class="row'+(on?' got':'')+'"><button class="box" role="checkbox" aria-checked="'+on+'" aria-label="'+esc(it.n)+'">'+CHECK+'</button>'+
@@ -1184,15 +1283,17 @@ function renderCourses(){
   if(!foreverOpen&&FOREVER.every(function(it){ return !!state.k[it.id]; })){
     var cr=el('<div class="row"><button class="box" role="checkbox" aria-checked="true" aria-label="Produits Forever" disabled>'+CHECK+'</button>'+
       '<div class="txt"><div class="lbl">Produits Forever<span class="qty">'+FOREVER.length+'/'+FOREVER.length+'</span></div><div class="sub">Tout est coché, tu as de quoi tenir les 9 jours.</div></div><button class="pill">Afficher</button></div>');
-    cr.querySelector(".pill").addEventListener("click",function(){ foreverOpen=true; renderCourses(); });
-    f.appendChild(cr); return;
-  }
+    cr.style.cursor="pointer"; cr.addEventListener("click",function(){ foreverOpen=true; renderCourses(); });
+    f.appendChild(cr);
+  } else {
   FOREVER.forEach(function(it){ var x=it;
     if(it.id==="f-aloe"&&aloe()) x={id:it.id,n:"Forever "+aloe().n,q:it.q,d:it.d};
     if(it.id==="f-fiber"&&fiber()) x={id:it.id,n:fiber().n,q:fiber().q,d:it.d};
-    if(it.id==="f-lite"&&extra()==="shake") x={id:it.id,n:x.n,q:"22 doses",d:it.d+" Plus 7 shakes bonus du J3 au J9."};
+    if(it.id==="f-lite"&&shakeMode()) x={id:it.id,n:x.n,q:"22 doses",d:it.d+" Plus 7 shakes bonus du J3 au J9."};
     f.appendChild(itemRow(x)); });
-  f.appendChild(el('<div class="warn">'+(extra()==="shake"?"Le kit contient 15 doses de Lite Ultra : avec tes shakes bonus, il t'en faut <b>7 de plus</b>, soit un second sachet. Les autres produits du kit suffisent pile.":extra()==="plat"?"Le kit contient exactement ces quantités. Tes 200 kcal passant par l'assiette, rien de plus à prévoir côté Forever.":FOREVER_NOTE)+'</div>'));
+  f.appendChild(el('<div class="warn">'+(shakeMode()?"Le kit contient 15 doses de Lite Ultra : avec tes shakes bonus, il t'en faut <b>7 de plus</b>, soit un second sachet. Les autres produits du kit suffisent pile.":extra()==="plat"?"Le kit contient exactement ces quantités. Tes 200 kcal passant par l'assiette, rien de plus à prévoir côté Forever.":FOREVER_NOTE)+'</div>'));
+  if(foreverOpen&&FOREVER.every(function(it){ return !!state.k[it.id]; })){ var rpf=el('<button class="reset" style="margin:8px auto">Replier</button>'); rpf.addEventListener("click",function(){ foreverOpen=false; renderCourses(); }); f.appendChild(rpf); }
+  }
   var host=document.getElementById("courses"); host.innerHTML="";
   COURSES.forEach(function(g){
     host.appendChild(el('<div class="grp">'+g.t+'</div>'));
@@ -1201,14 +1302,16 @@ function renderCourses(){
     if(vis.length&&!groupOpen[g.t]&&vis.every(function(it){ return !!state.k[it.id]; })){
       var cr=el('<div class="row"><button class="box" role="checkbox" aria-checked="true" aria-label="'+esc(g.t)+'" disabled>'+CHECK+'</button>'+
         '<div class="txt"><div class="lbl">Tout est coché<span class="qty">'+vis.length+'/'+vis.length+'</span></div></div><button class="pill">Afficher</button></div>');
-      cr.querySelector(".pill").addEventListener("click",function(){ groupOpen[g.t]=true; renderCourses(); });
+      cr.style.cursor="pointer"; cr.addEventListener("click",function(){ groupOpen[g.t]=true; renderCourses(); });
       c.appendChild(cr); host.appendChild(c); return;
     }
     g.items.forEach(function(it){ if(it.id==="c-fruits"&&restricted()){ drop=true; return; } var y=it;
       if(it.id==="c-lait"&&extra()==="shake") y={id:it.id,n:it.n,q:"≈ 5,3 L",d:"22 shakes de 240 ml, à moins de les faire à l'eau."};
       if(extra()==="plat"&&EXTRA_Q[it.id]) y={id:it.id,n:it.n,q:it.q+" "+EXTRA_Q[it.id],d:(it.d?it.d+" ":"")+"Le complément couvre tes +200 kcal."};
       c.appendChild(itemRow(y)); });
+    if(g.t==="Shakes"&&extra()==="shake"&&!restricted()) c.appendChild(el('<div class="warn">Tes recettes de shake bonus ont leurs propres ingrédients : voir Menus, « Recettes de shake ».</div>'));
     if(drop) c.appendChild(el('<div class="warn">Fruits et fruits à coque retirés de la liste : exclus avec ton Forever '+aloe().n+'.</div>'));
+    if(groupOpen[g.t]&&vis.length&&vis.every(function(it){ return !!state.k[it.id]; })){ var rp=el('<button class="reset" style="margin:8px auto">Replier</button>'); rp.addEventListener("click",function(){ groupOpen[g.t]=false; renderCourses(); }); c.appendChild(rp); }
     if(g.note) c.appendChild(el('<div class="warn">'+g.note+'</div>'));
     host.appendChild(c);
   });
