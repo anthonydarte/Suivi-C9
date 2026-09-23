@@ -57,4 +57,4 @@ L'app s'ouvre alors en plein écran et fonctionne hors ligne après la première
 
 ## Contenu
 
-Le programme, les produits et les recettes proviennent du livret Forever C9. Vérifie que leur diffusion publique te convient vis-à-vis de Forever avant de partager l'adresse.
+Le programme, les produits et les recettes proviennent du livret Forever C9.
